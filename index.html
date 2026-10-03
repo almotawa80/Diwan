@@ -23,10 +23,10 @@
   --f-display:'Aref Ruqaa','Amiri',serif; --f-verse:'Amiri','Traditional Arabic',serif; --f-ui:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#9aa3b8; --line:#283149; --tint:#1b2440;
+  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#b6bed1; --line:#283149; --tint:#1b2440;
   --accent:#8fa9e8; --on-accent:#0b1020; --gold:#d9b663; --danger:#ee9a9a; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#9aa3b8; --line:#283149; --tint:#1b2440;
+  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#b6bed1; --line:#283149; --tint:#1b2440;
   --accent:#8fa9e8; --on-accent:#0b1020; --gold:#d9b663; --danger:#ee9a9a; color-scheme:dark}
 html{direction:rtl}
 *{box-sizing:border-box}
@@ -37,7 +37,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mast{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{font-family:var(--f-display);font-size:clamp(2.2rem,7vw,3.4rem);line-height:1.3;background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-align:start}
 .mast-tools{display:flex;gap:8px}
-.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;color:var(--muted);font-size:.9rem}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;color:var(--ink);font-size:.9rem}
 .icon-btn:hover{color:var(--ink);border-color:var(--muted)}
 .orn{display:flex;align-items:center;gap:12px;margin-block:4px 18px;color:var(--gold)}
 .orn::before,.orn::after{content:"";height:1px;flex:1;background:linear-gradient(to var(--d,left),var(--gold),transparent);opacity:.7}
@@ -380,7 +380,7 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
 .ptools .icon-btn{padding:9px 14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .ptools .icon-btn svg{width:18px;height:18px}
 .ptools .icon-btn:not(.spk){justify-content:center}
-.ptools .sqb{width:44px;padding:9px 0;font-weight:600;color:var(--ink)}
+.ptools .sqb{width:48px;padding:9px 0;font-weight:600;color:var(--ink)}
 .ptools .icon-btn.main{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 #sheet{position:fixed;inset:0;z-index:80;display:flex;align-items:flex-end;justify-content:center}
 #sheet .sbd{position:absolute;inset:0;background:rgba(5,8,18,.3)}
@@ -401,6 +401,13 @@ body{padding-block-start:0}
 .mast .brand{font-size:clamp(1.8rem,6vw,2.6rem);line-height:1.2}
 .mast .blogo{width:30px;height:30px}
 .mast{box-shadow:0 1px 0 var(--line)}
+
+/* contrast fixes */
+.ptools .icon-btn:not(.main) svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ptools .icon-btn:not(.main) svg.dots{fill:currentColor;stroke:none}
+.ptools .icon-btn{font-weight:600;font-size:.95rem;border-color:var(--muted)}
+.stx small{font-size:.85rem}
+.seg3 button{color:var(--ink);opacity:.8}.seg3 button.on{opacity:1}
 </style>
 </head>
 <body>
@@ -434,7 +441,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-f';
+var BUILD='2026.10.03-g';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -756,7 +763,7 @@ function viewPoem(){
   '<h1 class="ptitle">'+esc(p.title)+(p.sample?' <span class="badge">مثال</span>':'')+'</h1>'+
   '<p class="pmeta">'+meta.map(function(m){return '<span>'+m[0]+': <b>'+esc(m[1])+'</b></span>'}).join('')+'<span>'+num(p.verses.length)+' بيتًا</span></p>'+
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
-  '<div class="tools-row ptools" style="margin-top:8px">'+(speakSupported()?'<button class="icon-btn spk main'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button>':'')+'<button class="icon-btn spk" data-act="readopen">'+ico('book')+' وضع القراءة</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="خيارات عرض الأبيات" title="الخط والحجم والتشكيل">Aa</button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد">'+ico('more')+'</button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
+  '<div class="tools-row ptools" style="margin-top:8px">'+(speakSupported()?'<button class="icon-btn spk main'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button>':'')+'<button class="icon-btn spk" data-act="readopen">'+ico('book')+' وضع القراءة</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="خيارات عرض الأبيات" title="الخط والحجم والتشكيل">Aa</button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="4.5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19.5" cy="12" r="3"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+socialHtml(p)+
   (canE()?'<div class="acts-row"><button class="btn" data-act="edit">تعديل</button><button class="btn" data-act="star">'+(p.star?'إزالة التمييز ★':'تمييز ★')+'</button><button class="btn" data-act="move">نقل إلى '+SECT[other]+'</button>'+
   (!isO()?'':S.confirm?'<button class="btn danger" data-act="delok">تأكيد الحذف</button><button class="btn" data-act="delno">تراجع</button>':'<button class="btn danger" data-act="del">حذف</button>')+'</div>':'')+navHtml(p)+relatedHtml(p)+'<div class="printfoot">'+esc(S.data.settings.site)+(poetLabel(p)?' — '+esc(poetLabel(p)):'')+'</div>';
