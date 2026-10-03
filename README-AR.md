@@ -1,0 +1,46 @@
+# ديواني: دليل النشر على GitHub Pages مع Supabase
+
+الموقع ملفات ثابتة (index.html) تُستضاف على GitHub Pages، وتُحفظ القصائد وحسابات الدخول في Supabase (خطة مجانية تكفي).
+القراءة مفتوحة لأي شخص بلا حساب. الإضافة والتعديل للمالك والمديرين بعد تسجيل الدخول. الحذف والإعدادات للمالك وحده.
+
+## 1) إنشاء مشروع Supabase
+1. ادخل إلى supabase.com وأنشئ حسابًا ثم مشروعًا جديدًا (اختر أقرب منطقة، واحفظ كلمة مرور قاعدة البيانات).
+2. انتظر حتى يكتمل التجهيز.
+
+## 2) إنشاء الجداول وقواعد الأمان
+1. من القائمة الجانبية افتح SQL Editor ثم New query.
+2. الصق محتوى الملف `supabase-setup.sql` كاملًا واضغط Run. يجب أن يظهر Success.
+
+## 3) إنشاء حسابات الدخول
+1. افتح Authentication ثم Users ثم Add user ثم Create new user.
+2. اكتب البريد وكلمة المرور، وفعّل Auto Confirm User. اسم المستخدم في الموقع هو هذا البريد.
+3. أنشئ حسابك أنت، وحسابًا للمدير إن أردت.
+4. عد إلى SQL Editor وشغّل (بعد تغيير البريدين إلى بريديكما):
+   ```sql
+   insert into public.staff (user_id, role) select id, 'owner'   from auth.users where email = 'بريدك@example.com';
+   insert into public.staff (user_id, role) select id, 'manager' from auth.users where email = 'بريد-المدير@example.com';
+   ```
+5. أوقف التسجيل العام حتى لا ينشئ الزوار حسابات: Authentication ثم Sign In / Providers ثم Email، وأطفئ Allow new users to sign up.
+
+## 4) ربط الموقع بالمشروع
+1. من Project Settings ثم API انسخ Project URL ومفتاح anon public.
+2. افتح الملف `config.js` وضعهما بين علامتي الاقتباس.
+3. المفتاح anon يظهر للزوار بطبيعته، والحماية تتم بقواعد الأمان في الخطوة 2. لا تضع مفتاح service_role أبدًا.
+
+## 5) النشر على GitHub Pages
+1. أنشئ مستودعًا جديدًا في GitHub (اسمه مثلًا diwan).
+2. ارفع الملفات: `index.html` و`config.js` و`.nojekyll` (يمكنك رفع `README-AR.md` و`supabase-setup.sql` أيضًا، أما `poems-backup.json` فاحتفظ به عندك).
+3. من Settings ثم Pages اختر Deploy from a branch ثم الفرع main والمجلد / (root) ثم Save.
+4. بعد دقيقة يظهر الرابط: `https://اسم-حسابك.github.io/diwan/`.
+5. لنطاق خاص بك: أضفه في Settings ثم Pages ثم Custom domain واتبع تعليمات GitHub.
+
+## 6) نقل قصائدك الحالية
+1. افتح الموقع وسجّل دخولك بزر «دخول المدير» أعلى الصفحة.
+2. اضغط ⚙ ثم «استعادة نسخة» ثم «اختيار ملف» واختر `poems-backup.json` ثم «دمج النسخة».
+
+## ملاحظات
+- تعديل مدير يظهر عند باقي الزوار تلقائيًا خلال ثوانٍ.
+- لتغيير كلمة مرور حساب: Authentication ثم Users ثم الحساب ثم Send password recovery، أو غيّرها من لوحة Supabase.
+- لإضافة مدير لاحقًا: أنشئ حسابه (الخطوة 3) ثم شغّل سطر manager لبريده.
+- إن لم يُملأ `config.js`، يعمل الموقع بوضع تجريبي يحفظ في متصفحك فقط.
+- حذف القصائد وتعديل اسم الموقع محصوران بالمالك في قواعد قاعدة البيانات نفسها، وليس في الواجهة فقط.
