@@ -326,6 +326,19 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
   .bookdoc{border:0;padding:0;background:#fff}.bpoem{break-before:page;border:0;margin:0}.bcover{break-after:page;padding-top:30vh}.btoc{break-after:page}
   table.bv td{font-size:17pt!important}.likerow,.cm,.about .btn{display:none!important}
 }
+
+#arov{position:fixed;inset:0;z-index:90;background:rgba(5,8,18,.82);display:grid;place-items:center;padding:12px;animation:fin .2s ease}
+.arbox{width:min(94vw,560px);max-width:94vw;max-height:92vh;overflow:auto;text-align:start;gap:8px;grid-template-columns:minmax(0,1fr)}
+.arbox *{min-width:0}.arf{overflow-wrap:anywhere;font-size:.9rem}
+.artitle{font-family:var(--f-display);font-size:1.3rem;color:var(--accent);font-weight:400}
+.arsum{display:grid;justify-items:center;gap:0;border:1px solid var(--gold);background:var(--tint);border-radius:12px;padding:8px}
+.arsum span{font-size:.8rem;color:var(--gold)}.arsum b{font-family:var(--f-display);font-size:1.8rem;color:var(--accent);font-weight:400}.arsum small{color:var(--muted)}
+.aract{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.aract .btn{padding:6px 12px;font-size:.9rem}
+.arlist{display:grid;gap:8px}.arrow{display:flex;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
+.arrow.ok{border-color:#2e8b57}.arrow.bad{border-color:#c0392b}.arrow.skip{opacity:.7}
+.arn{font-size:.8rem;color:var(--muted);min-width:1.6em}.arb{flex:1;min-width:0}
+.arv{font-family:var(--f-verse);font-size:1.15rem;line-height:1.8}.arp{font-family:monospace;direction:ltr;text-align:center;color:var(--muted);letter-spacing:.12em;word-break:break-all;font-size:.85rem}
+.arf{text-align:center;color:var(--accent);font-weight:600}.arnote{font-size:.8rem}
 </style>
 </head>
 <body>
@@ -682,7 +695,7 @@ function viewPoem(){
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
   '<div class="tools-row" style="margin-top:8px"><button class="icon-btn" data-act="readopen">وضع القراءة</button><button class="icon-btn" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn" data-act="fsup" aria-label="تكبير الخط">أ+</button>'+
   (hasTash(p)?'<button class="icon-btn" data-act="tash">'+(S.tash?'إخفاء التشكيل':'إظهار التشكيل')+'</button>':'')+
-  '<button class="icon-btn" data-act="copypoem">نسخ القصيدة</button><button class="icon-btn" data-act="font" title="تغيير خط الأبيات">الخط: '+FONTS[S.fi][0]+'</button><button class="icon-btn spk'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button><button class="icon-btn" data-act="speed" title="سرعة القراءة">السرعة: '+rateLabel()+'</button><button class="icon-btn" data-act="sharelink">مشاركة الرابط</button><button class="icon-btn" data-act="printpoem">طباعة</button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
+  '<button class="icon-btn" data-act="copypoem">نسخ القصيدة</button><button class="icon-btn" data-act="font" title="تغيير خط الأبيات">الخط: '+FONTS[S.fi][0]+'</button><button class="icon-btn spk'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button><button class="icon-btn" data-act="speed" title="سرعة القراءة">السرعة: '+rateLabel()+'</button><button class="icon-btn" data-act="sharelink">مشاركة الرابط</button><button class="icon-btn" data-act="printpoem">طباعة</button>'+(hasTash(p)?'<button class="icon-btn" data-act="taqti3">تقطيع عروضي</button>':'')+'</div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+socialHtml(p)+
   (canE()?'<div class="acts-row"><button class="btn" data-act="edit">تعديل</button><button class="btn" data-act="star">'+(p.star?'إزالة التمييز ★':'تمييز ★')+'</button><button class="btn" data-act="move">نقل إلى '+SECT[other]+'</button>'+
   (!isO()?'':S.confirm?'<button class="btn danger" data-act="delok">تأكيد الحذف</button><button class="btn" data-act="delno">تراجع</button>':'<button class="btn danger" data-act="del">حذف</button>')+'</div>':'')+navHtml(p)+relatedHtml(p)+'<div class="printfoot">'+esc(S.data.settings.site)+(poetLabel(p)?' — '+esc(poetLabel(p)):'')+'</div>';
@@ -800,7 +813,7 @@ function viewMore(){
 }
 function render(keep){
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():viewTools();
-  hideTip();var ap=$('#app');ap.innerHTML=h;renderNav();
+  hideTip();var aov=$('#arov');if(aov)aov.remove();var ap=$('#app');ap.innerHTML=h;renderNav();
   if(!keep){window.scrollTo(0,0);ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash();stopSpeak()}
   if(S.view==='poem'&&S.social&&$('#cm-list'))loadComments();
@@ -1090,6 +1103,165 @@ function fetchPending(){
   if(!canE()||!S.social)return Promise.resolve();
   return sb.from('comments').select('id,poem_id,name,body,created').eq('approved',false).order('created',{ascending:true}).then(function(r){S.pending=r.error?[]:(r.data||[])});
 }
+/* ---------- arud (prosody) scanner ---------- */
+var AR_SPECIAL=[
+  [/^هذا$/,'هَاذَا'],[/^هذه$/,'هَاذِهِ'],[/^هذان$/,'هَاذَانِ'],[/^ذلك$/,'ذَالِكَ'],[/^ذلكم$/,'ذَالِكُمْ'],[/^لكن$/,'لَاكِنْ'],[/^لكنّ$/,'لَاكِنَّ'],
+  [/^الله$/,'اللَاه'],[/^لله$/,'لِلَاه'],[/^إله$/,'إِلَاه'],[/^الرحمن$/,'الرَّحْمَان'],[/^أولئك$/,'أُلَائِكَ'],[/^طه$/,'طَاهَ']
+];
+function arStripMarks(w){return w.replace(/[ً-ٰٟـ]/g,'')}
+function arLetters(word){
+  var out=[],ch=Array.from(word);
+  for(var i=0;i<ch.length;i++){
+    var c=ch[i];
+    if(/[ً-ٰٟ]/.test(c)){if(out.length){var m=out[out.length-1].m;
+        if(c==='َ')m.f=1;else if(c==='ُ')m.d=1;else if(c==='ِ')m.k=1;else if(c==='ْ')m.s=1;else if(c==='ّ')m.sh=1;
+        else if(c==='ً')m.tf=1;else if(c==='ٌ')m.td=1;else if(c==='ٍ')m.tk=1;else if(c==='ٰ')m.dg=1}continue}
+    if(c==='ـ')continue;
+    if(!/[ء-يٱ]/.test(c))continue;
+    out.push({c:c==='ٱ'?'ا':c,wasl:c==='ٱ',m:{}});
+  }
+  return out;
+}
+function arHaraka(m){return m.f||m.d||m.k}
+/* returns {syms:[{v,kind}], missing:n} for one word. kind: c (consonant haraka), m (madd), s (sakin), t (tanwin-nun) */
+function arWord(word,isFirstGlobal){
+  var L=arLetters(word),syms=[],missing=0,startsWasl=false,i,prev=null; /* prev: last consonant letter info */
+  if(L.length>2&&L[0].c==='ا'&&!L[0].m.f&&!L[0].m.d&&!L[0].m.k&&(L[0].wasl||(L[1].c==='ل'&&!L[1].m.k&&!L[1].m.f&&!L[1].m.d)))startsWasl=true;
+  var preAl=(!startsWasl&&L.length>3&&'وفبك'.indexOf(L[0].c)>-1&&L[1].c==='ا'&&!arHaraka(L[1].m)&&L[2].c==='ل'&&!arHaraka(L[2].m)&&!L[2].m.sh);
+  for(i=0;i<L.length;i++){
+    var x=L[i],m=x.m,c=x.c,nx=L[i+1],isLast=(i===L.length-1);
+    if(preAl&&i===1){continue}
+    if(preAl&&i===2&&L[3]&&L[3].m.sh){continue}
+    if(i===0&&startsWasl){syms.push({v:'1',kind:'w'});prev=null;continue}
+    if(startsWasl&&i===1&&c==='ل'&&nx&&nx.m.sh&&!arHaraka(m)){continue} /* assimilated lam */
+    if(c==='آ'){syms.push({v:'1',kind:'c'});syms.push({v:'0',kind:'m'});prev={f:1};continue}
+    if(c==='ا'||c==='ى'){
+      if(prev&&prev.f&&!prev.tf)syms.push({v:'0',kind:'m'});
+      prev=null;continue;
+    }
+    if((c==='و'||c==='ي')&&!arHaraka(m)&&!m.sh&&!m.tf&&!m.td&&!m.tk&&prev&&((c==='و'&&prev.d)||(c==='ي'&&prev.k))){
+      syms.push({v:'0',kind:'m'});prev=null;continue;
+    }
+    /* consonant */
+    var h=arHaraka(m),tan=m.tf||m.td||m.tk,hv=h||tan||m.dg;
+    if(!hv&&!m.s&&!m.sh){
+      /* infer from following madd letter */
+      if(nx&&!arHaraka(nx.m)&&!nx.m.sh&&!nx.m.s){
+        if(nx.c==='ا'||nx.c==='ى'){m=Object.assign({},m,{f:1});hv=1}
+        else if(nx.c==='و'&&!nx.m.f&&!nx.m.d&&!nx.m.k){m=Object.assign({},m,{d:1});hv=1}
+        else if(nx.c==='ي'&&!nx.m.f&&!nx.m.d&&!nx.m.k){m=Object.assign({},m,{k:1});hv=1}
+      }
+    }
+    if(m.sh){
+      syms.push({v:'0',kind:'s'});
+      if(hv||tan){syms.push({v:'1',kind:'c'})}else{missing++;syms.push({v:'1',kind:'c'})}
+    }else if(m.dg){syms.push({v:'1',kind:'c'});syms.push({v:'0',kind:'m'});m=Object.assign({},m,{f:1})}
+    else if(tan||h){syms.push({v:'1',kind:'c'})}
+    else if(m.s){syms.push({v:'0',kind:'s'})}
+    else if(isLast){syms.push({v:'0',kind:'s'})}
+    else{missing++;syms.push({v:'1',kind:'c'})}
+    if(tan)syms.push({v:'0',kind:'t'});
+    prev={f:m.f,d:m.d,k:m.k,tf:m.tf};
+  }
+  return {syms:syms,missing:missing,wasl:startsWasl};
+}
+function arBinary(text){
+  var words=String(text).replace(/[،؛؟\.\,\;\:\!\?\(\)\[\]«»"'—–\-…]/g,' ').split(/\s+/).filter(Boolean);
+  var all=[],missing=0,prevSyms=null;
+  words.forEach(function(w,wi){
+    var plainW=arStripMarks(w).replace(/ٱ/g,'ا'),mapped=null;
+    AR_SPECIAL.forEach(function(sp){if(!mapped&&sp[0].test(plainW))mapped=sp[1]});
+    var r=arWord(mapped||w,wi===0);missing+=r.missing;
+    var syms=r.syms.slice();
+    if(r.wasl&&prevSyms&&prevSyms.length){
+      syms.shift(); /* drop the wasl alef */
+      var last=all[all.length-1];
+      if(last){ if(last.kind==='m'){all.pop()}else if(last.v==='0'){last.v='1';last.kind='c'} }
+    }
+    syms.forEach(function(s){all.push(s)});
+    prevSyms=syms;
+  });
+  return {bin:all.map(function(s){return s.v}).join(''),missing:missing,words:words.length};
+}
+var FA=[['11010','فعولن'],['1101','فعولُ'],['1010','فعْلن']];
+var MF=[['1101010','مفاعيلن'],['110110','مفاعلن'],['110101','مفاعيلُ'],['11010','مفاعي']];
+var FAI=[['10110','فاعلن'],['1110','فَعِلن'],['1010','فعْلن'],['10101','فاعلُ']];
+var MUS=[['1010110','مستفعلن'],['1110110','متفعلن'],['101110','مفتعلن'],['10110','مستفع'],['1010101','مستفعلُ']];
+var FALA=[['1011010','فاعلاتن'],['111010','فعلاتن'],['101101','فاعلاتُ'],['10110','فاعلن'],['11101','فعلاتُ']];
+var MAFA=[['1101110','مفاعلتن'],['1101010','مفاعيلن'],['110110','مفاعلن'],['11010','فعولن']];
+var MUTA=[['1110110','متفاعلن'],['1010110','مستفعلن'],['110110','مفاعلن'],['11010','فعولن'],['1110','فعِلن']];
+var MAF3=[['1010101','مفعولاتُ'],['101010','مفعولات'],['111010','فعلاتن']];
+var AR_METERS=[
+  ['الطويل',[FA,MF,FA,MF]],['المديد',[FALA,FAI,FALA]],['البسيط',[MUS,FAI,MUS,FAI]],['الوافر',[MAFA,MAFA,FA]],
+  ['الكامل',[MUTA,MUTA,MUTA]],['الهزج',[MF,MF]],['الرجز',[MUS,MUS,MUS]],['الرمل',[FALA,FALA,FALA]],
+  ['السريع',[MUS,MUS,FAI]],['المنسرح',[MUS,MAF3,MUS]],['الخفيف',[FALA,MUS,FALA]],['المضارع',[MF,FALA]],
+  ['المقتضب',[MAF3,MUS]],['المجتث',[MUS,FALA]],['المتقارب',[FA,FA,FA,FA]],['المتدارك',[FAI,FAI,FAI,FAI]]
+];
+/* try to parse binary with the foot lists; returns feet names or null */
+function arMatch(bin,feet){
+  var res=null;
+  (function go(i,pos,acc){
+    if(res)return;
+    if(i===feet.length){if(pos===bin.length)res=acc.slice();return}
+    feet[i].forEach(function(f,k){if(!res&&bin.substr(pos,f[0].length)===f[0]){acc.push([f[1],k]);go(i+1,pos+f[0].length,acc);acc.pop()}});
+  })(0,0,[]);
+  return res;
+}
+function arVariants(bin){
+  var v=[bin];
+  if(bin.slice(-1)==='1'){v.push(bin+'0');v.push(bin.slice(0,-1)+'0')}
+  if(bin.slice(-1)==='0'&&bin.slice(-2,-1)==='1')v.push(bin+'0');
+  return v;
+}
+function arScanHemistich(text){
+  var b=arBinary(text),found=[];
+  AR_METERS.forEach(function(m){
+    var best=null;
+    arVariants(b.bin).forEach(function(v){if(!best){var r=arMatch(v,m[1]);if(r)best=r}});
+    if(best)found.push({bahr:m[0],feet:best.map(function(x){return x[0]}),pen:best.reduce(function(a,x){return a+(x[1]>0?1:0)},0)});
+  });
+  return {bin:b.bin,missing:b.missing,words:b.words,found:found};
+}
+/* poem level */
+function arScanPoem(verses){
+  var score={},rows=[],used=0,skipped=0,detail={};
+  verses.forEach(function(v,i){
+    var s1=arScanHemistich(v[0]);
+    if(s1.missing>1||s1.words<2){skipped++;rows.push({i:i,skip:true,bin:s1.bin});return}
+    used++;
+    var s2=v[1]?arScanHemistich(v[1]):null;
+    rows.push({i:i,bin:s1.bin,bin2:s2?s2.bin:'',found:s1.found.map(function(f){return f.bahr}),feet:s1.found,found2:s2?s2.found.map(function(f){return f.bahr}):[]});
+    s1.found.forEach(function(f){score[f.bahr]=(score[f.bahr]||0)+1+(s2&&s2.found.some(function(g){return g.bahr===f.bahr})?0.5:0)-0.12*f.pen});
+  });
+  var ranked=Object.keys(score).sort(function(a,b){return score[b]-score[a]});
+  return {rows:rows,used:used,skipped:skipped,ranked:ranked,score:score};
+}
+
+
+function arNote(bin){return String(bin).replace(/1/g,'/').replace(/0/g,'o')}
+function showArud(p){
+  var r=arScanPoem(p.verses),top=r.ranked[0],h='';
+  h+='<div class="shbox arbox"><div class="shhead"><button class="icon-btn sq" data-act="arclose" aria-label="إغلاق">✕</button><b class="artitle">التقطيع العروضي</b></div>';
+  if(!r.used){
+    h+='<p class="hint">لا يوجد تشكيل كافٍ لتقطيع هذه القصيدة. أضف التشكيل الكامل للأبيات (الحركات والسكون والشدة) ثم أعد المحاولة.</p>';
+  }else if(!top){
+    h+='<p class="hint">لم يطابق أي بحر من البحور الستة عشر. قد يكون التشكيل ناقصًا أو فيه خطأ، أو أن للأبيات زحافات نادرة.</p>';
+  }else{
+    h+='<div class="arsum"><span>البحر المرجّح</span><b>'+esc(top)+'</b><small>طابق '+num(r.rows.filter(function(x){return x.found&&x.found.indexOf(top)>-1}).length)+' من '+num(r.used)+' بيتًا مقطّعًا</small></div>';
+    var alts=r.ranked.slice(1,3);
+    if(alts.length)h+='<p class="hint">احتمالات أخرى: '+alts.map(function(a){return esc(a)}).join('، ')+'</p>';
+    if(canE()){h+='<div class="aract">'+r.ranked.slice(0,3).map(function(a){return '<button class="btn'+(a===p.bahr?' primary':'')+'" data-act="arset" data-b="'+esc(a)+'">'+(a===p.bahr?'✓ ':'')+'اعتماد '+esc(a)+'</button>'}).join('')+'</div>'}
+  }
+  h+='<div class="arlist">'+r.rows.map(function(x){
+    var v=p.verses[x.i];
+    if(x.skip)return '<div class="arrow skip"><span class="arn">'+num(x.i+1)+'</span><div class="arb"><div class="arv">'+esc(v[0])+'</div><small>تشكيل غير كافٍ لتقطيع هذا البيت</small></div></div>';
+    var okTop=top&&x.found.indexOf(top)>-1;
+    var ft=top&&okTop?x.feet.find(function(f){return f.bahr===top}):null;
+    return '<div class="arrow'+(okTop?' ok':' bad')+'"><span class="arn">'+num(x.i+1)+'</span><div class="arb"><div class="arv">'+esc(v[0])+'</div><div class="arp">'+arNote(x.bin)+'</div>'+(ft?'<div class="arf">'+ft.feet.map(esc).join(' · ')+'</div>':'<small>'+(x.found.length?'يوافق: '+x.found.map(esc).join('، '):'لا يطابق بحرًا')+'</small>')+'</div></div>';
+  }).join('')+'</div>';
+  h+='<p class="hint arnote">تقطيع آلي تقريبي: / متحرك، o ساكن. يعتمد على كمال التشكيل، وقد يخطئ في الزحافات والعلل النادرة، فراجعه.</p></div>';
+  var o=document.createElement('div');o.id='arov';o.innerHTML=h;document.body.appendChild(o);
+}
 function updatePrev(){var ta=$('#e-verses');if(!ta)return;var vs=parseVerses(ta.value,$('#e-mode').value);$('#e-prev').innerHTML=vs.length?versesHtml(vs):'<span class="hint">ستظهر الأبيات هنا.</span>';$('#e-cnt').textContent=vs.length?'('+num(vs.length)+' بيتًا)':''}
 function renderList(){var lb=$('#listbox');if(!lb)return;lb.innerHTML=listHtml();var v=$('#votd');if(v)v.hidden=!!(S.q||S.bahr||S.tag)}
 
@@ -1152,6 +1324,9 @@ document.addEventListener('click',function(e){
   else if(a==='tools'){if(!isO())return;S.view='tools';render()}
   else if(a==='fab'){document.querySelector('.fabwrap').classList.toggle('open')}
   else if(a==='fv'){p=cur();var fvv=p&&p.verses[+b.dataset.i];if(fvv){fvToggle(p,fvv);b.classList.toggle('on',fvHas(p.id,fvv))}}
+  else if(a==='taqti3'){p=cur();if(p)showArud(p)}
+  else if(a==='arclose'){var ao=$('#arov');if(ao)ao.remove()}
+  else if(a==='arset'){p=cur();if(!canE()||!p)return;p.bahr=b.dataset.b;persistPoem(p).then(function(){toast('اعتُمد البحر: '+p.bahr)},fail);var ao2=$('#arov');if(ao2)ao2.remove();render(true)}
   else if(a==='aboutpoet'){S.view='poetpage';render()}
   else if(a==='stats'){if(!canE())return;S.view='stats';render()}
   else if(a==='bookview'){if(!canE())return;S.view='book';render()}
