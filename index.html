@@ -150,10 +150,12 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
   .v.one .s{text-align:center}
   .form .two{grid-template-columns:1fr}
   .rv .v{display:block}
-  #bnav{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;position:fixed;inset-inline:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:8px 6px;box-shadow:0 10px 30px rgba(10,20,50,.2);z-index:6}
+  #bnav{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);border-radius:0;padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(10,20,50,.12);z-index:50;transform:translateZ(0)}
+  #toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   #bnav button{position:relative;background:none;border:0;display:grid;justify-items:center;gap:2px;padding:6px 0 5px;border-radius:14px;color:var(--muted);font-size:.74rem;cursor:pointer;min-width:0;transition:background .2s,color .2s}
   #bnav button[aria-current="page"]{color:var(--accent);font-weight:600;background:var(--tint)}
-  #bnav button[aria-current="page"]::before{content:"";position:absolute;top:-9px;inset-inline:32%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+  #bnav button[aria-current="page"]::before{content:"";position:absolute;top:-8px;inset-inline:32%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
   #bnav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   #bnav button[data-nav="search"]{margin-top:-28px;background:none;color:var(--accent);font-weight:600}
   #bnav button[data-nav="search"]::before{display:none}
