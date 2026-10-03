@@ -409,6 +409,11 @@ body{padding-block-start:0}
 .shhead .shfv{margin-inline-start:auto;color:var(--ink);font-weight:600}
 
 .rhint2{margin:8px 0 0;font-size:.8rem}
+
+/* icon-only toolbar */
+.ptools{justify-content:flex-start;gap:12px}
+.ptools .icon-btn.sqb{width:48px;height:48px;padding:0;display:inline-grid;place-items:center;border:1.5px solid var(--muted);color:var(--ink)}
+.ptools .icon-btn.sqb svg{width:24px;height:24px}
 </style>
 </head>
 <body>
@@ -442,7 +447,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-k';
+var BUILD='2026.10.03-m';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -764,7 +769,7 @@ function viewPoem(){
   '<h1 class="ptitle">'+esc(p.title)+(p.sample?' <span class="badge">مثال</span>':'')+'</h1>'+
   '<p class="pmeta">'+meta.map(function(m){return '<span>'+m[0]+': <b>'+esc(m[1])+'</b></span>'}).join('')+'<span>'+num(p.verses.length)+' بيتًا</span></p>'+
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
-  '<div class="tools-row ptools" style="margin-top:8px">'+'<button class="icon-btn spk" data-act="readopen">'+ico('book')+' وضع القراءة</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="خيارات عرض الأبيات" title="الخط والحجم والتشكيل">Aa</button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="4.5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19.5" cy="12" r="3"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
+  '<div class="tools-row ptools" style="margin-top:8px">'+'<button class="icon-btn sqb" data-act="readopen" aria-label="وضع القراءة" title="وضع القراءة">'+ico('book')+'</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="الخط والحجم والتشكيل" title="الخط والحجم والتشكيل"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19L9 5l6 14M5.2 14h7.6M17 19l2.5-6 2.5 6M17.8 17h3.4"/></svg></button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+socialHtml(p)+
   (canE()?'<div class="acts-row"><button class="btn" data-act="edit">تعديل</button><button class="btn" data-act="star">'+(p.star?'إزالة التمييز ★':'تمييز ★')+'</button><button class="btn" data-act="move">نقل إلى '+SECT[other]+'</button>'+
   (!isO()?'':S.confirm?'<button class="btn danger" data-act="delok">تأكيد الحذف</button><button class="btn" data-act="delno">تراجع</button>':'<button class="btn danger" data-act="del">حذف</button>')+'</div>':'')+navHtml(p)+relatedHtml(p)+'<div class="printfoot">'+esc(S.data.settings.site)+(poetLabel(p)?' — '+esc(poetLabel(p)):'')+'</div>';
@@ -871,6 +876,40 @@ function fitCap(){
   }
   root.style.setProperty('--fs',old||S.fs);
   FITC={k:key,v:cap};return cap;
+}
+var RFIT={k:'',v:1.6};
+/* وضع القراءة: أكبر حجم لا ينزل معه شطر من أي بيت إلى سطر ثانٍ */
+function readerCap(){
+  var rb=$('#rbody'),p=cur();if(!rb||!p)return 1.6;
+  var key=[S.cur,S.fi,S.tash,window.innerWidth,window.innerHeight].join('|');
+  if(RFIT.k===key)return RFIT.v;
+  var t=document.createElement('div');t.className='rv';t.style.cssText='visibility:hidden;height:0;overflow:hidden;animation:none';
+  var any=false;
+  p.verses.forEach(function(v){if(v[1]){[v[0],v[1]].forEach(function(x){var d=document.createElement('div');d.textContent=S.tash?x:plain(x);t.appendChild(d);any=true})}});
+  var cap=1.6;
+  if(any){
+    rb.appendChild(t);cap=0.8;
+    var els=t.children;
+    for(var n=8;n<=16;n++){
+      var s=n/10,bad=false;t.style.setProperty('--fs',s);
+      for(var i=0;i<els.length;i++){var cs=getComputedStyle(els[i]),fs=parseFloat(cs.fontSize),lh=parseFloat(cs.lineHeight)||fs*1.9;if(els[i].getBoundingClientRect().height>lh*1.4){bad=true;break}}
+      if(bad)break;cap=s;
+    }
+    rb.removeChild(t);
+  }
+  RFIT={k:key,v:cap};return cap;
+}
+/* بطاقة المشاركة: هل يتسع البيت بهذا الحجم دون كسر الشطر أو تصغير تلقائي؟ */
+function cardFits(sc){
+  if(!shCur)return true;
+  var W=1080,H=1350,cx=document.createElement('canvas').getContext('2d'),v=shCur.v;
+  var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
+  var tt=function(x){return S.tash?x:plain(x)};
+  var parts=[tt(v[0])];if(v[1])parts.push(tt(v[1]));
+  var size=Math.round(64*sc);cx.font=size+'px "'+fam+'", serif';
+  for(var i=0;i<parts.length;i++)if(cx.measureText(parts[i]).width>W-240)return false;
+  var lh=Math.round(size*1.8),gap=parts.length>1?76:0;
+  return parts.length*lh+gap<=(shInfo?H-390:H-220)-235;
 }
 var SHK='';
 function sheetHtml(k){
@@ -1468,7 +1507,7 @@ document.addEventListener('click',function(e){
     else{p=cur();var vv=p&&p.verses[+b.dataset.i];if(vv)shareVerse(p,vv)}
   }
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
-  else if(a==='shsz'){shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
+  else if(a==='shsz'){if((+b.dataset.d)>0){var ns=Math.min(1.6,Math.round((shScale+0.12)*100)/100);if(!cardFits(ns)){toast('أكبر حجم يناسب البطاقة');return}}shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
   else if(a==='shwa'){
     var wc=$('#shc'),mob=/android|iphone|ipad|ipod/i.test(navigator.userAgent||'');
     if(mob&&wc&&window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
@@ -1492,7 +1531,7 @@ document.addEventListener('click',function(e){
     else{try{navigator.clipboard.writeText(url).then(function(){toast('تم نسخ رابط القصيدة')},function(){toast(url)})}catch(x){toast(url)}}
   }
   else if(a==='votd'){pickVotd(true);render(true)}
-  else if(a==='fsup'||a==='fsdown'){S.fs=Math.min(1.6,Math.max(0.8,Math.round((S.fs+(a==='fsup'?0.1:-0.1))*10)/10));try{localStorage.setItem('diwan-fs',S.fs)}catch(x){}var vs=$('.verses')||$('#reader');if(vs)vs.style.setProperty('--fs',S.fs);if(S.view==='more')render(true)}
+  else if(a==='fsup'||a==='fsdown'){if(a==='fsup'&&S.view==='read'){var nx=Math.round((S.fs+0.1)*10)/10;if(nx>Math.max(readerCap(),S.fs)+0.001){toast('أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ');return}}S.fs=Math.min(1.6,Math.max(0.8,Math.round((S.fs+(a==='fsup'?0.1:-0.1))*10)/10));try{localStorage.setItem('diwan-fs',S.fs)}catch(x){}var vs=$('.verses')||$('#reader');if(vs)vs.style.setProperty('--fs',S.fs);if(S.view==='more')render(true)}
   else if(a==='tash'){S.tash=!S.tash;try{localStorage.setItem('diwan-tash',S.tash?'1':'0')}catch(x){}render(true)}
   else if(a==='readopen'){S.ri=0;S.dir='';S.view='read';render()}
   else if(a==='rclose'){S.view='poem';render(true)}
