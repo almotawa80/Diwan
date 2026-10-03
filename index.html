@@ -443,7 +443,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-h';
+var BUILD='2026.10.03-i';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -981,6 +981,17 @@ function drawCard(c,p,v,T){
 function shRedraw(){var c=$('#shc');if(c&&shCur)drawCard(c,shCur.p,shCur.v,SH_THEMES[shSel]);
   document.querySelectorAll('.sw').forEach(function(el,i){el.classList.toggle('on',i===shSel)})}
 function shBlob(cb){var c=$('#shc');c.toBlob(function(b){if(!b)toast('تعذر إنشاء الصورة');else cb(b)},'image/png')}
+function waShare(){
+    shBlob(function(bl){
+    var file=null;try{file=new File([bl],'bait.png',{type:'image/png'})}catch(x){}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(function(){});return}
+    /* الحاسوب: ننسخ الصورة ثم نفتح واتساب لتلصقها */
+    var open=function(m){toast(m);window.open('https://web.whatsapp.com/','_blank','noopener')};
+    try{
+      navigator.clipboard.write([new ClipboardItem({'image/png':bl})]).then(function(){open('نُسخت البطاقة، الصقها في المحادثة (Ctrl+V)')},function(){open('احفظ الصورة ثم أرفقها في واتساب')});
+    }catch(x){open('احفظ الصورة ثم أرفقها في واتساب')}
+  });
+}
 function shareVerse(p,v){
   var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
   var load=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('64px "'+fam+'"'),document.fonts.load('52px "Aref Ruqaa"'),document.fonts.load('36px "IBM Plex Sans Arabic"'),document.fonts.load('38px "Amiri"')]):Promise.resolve();
@@ -1492,15 +1503,11 @@ document.addEventListener('click',function(e){
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
   else if(a==='shsz'){shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
   else if(a==='shwa'){
-    shBlob(function(bl){
-      var file=null;try{file=new File([bl],'bait.png',{type:'image/png'})}catch(x){}
-      if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(function(){});return}
-      /* الحاسوب: ننسخ الصورة ثم نفتح واتساب لتلصقها */
-      var open=function(m){toast(m);window.open('https://web.whatsapp.com/','_blank','noopener')};
-      try{
-        navigator.clipboard.write([new ClipboardItem({'image/png':bl})]).then(function(){open('نُسخت البطاقة، الصقها في المحادثة (Ctrl+V)')},function(){open('احفظ الصورة ثم أرفقها في واتساب')});
-      }catch(x){open('احفظ الصورة ثم أرفقها في واتساب')}
-    });
+    var wc=$('#shc'),mob=/android|iphone|ipad|ipod/i.test(navigator.userAgent||'');
+    if(mob&&wc&&window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+      var wpr=new Promise(function(res){wc.toBlob(res,'image/png')});
+      navigator.clipboard.write([new ClipboardItem({'image/png':wpr})]).then(function(){toast('نُسخت البطاقة، اختر المحادثة ثم الصق');setTimeout(function(){location.href='whatsapp://send'},600)},function(){waShare()});
+    }else waShare();
   }
   else if(a==='shinfo'){shInfo=b.checked;try{localStorage.setItem('diwan-shinfo',shInfo?'1':'0')}catch(x){}shRedraw()}
   else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
