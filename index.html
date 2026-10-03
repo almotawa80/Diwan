@@ -238,10 +238,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .shhead{display:flex;justify-content:space-between;align-items:center}
 .shsize{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:.9rem}
 .shhead{justify-content:flex-start}
-.vw.speaking .v{color:var(--accent);transition:color .3s}
-.vw.speaking{background:var(--tint);border-radius:10px;box-shadow:0 0 0 1px var(--gold) inset}
-.icon-btn.spk{display:inline-flex;align-items:center;gap:6px}.icon-btn.spk.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-.icon-btn.sq.spk{display:inline-grid}
+.icon-btn.spk{display:inline-flex;align-items:center;gap:6px}
 .rtop{gap:6px}.rtop .sq{width:35px;height:35px;font-size:1rem}.rtools{gap:4px}.rtitle{font-size:1.15rem}
 .rbody{padding-inline:4px}.rv{width:100%;max-width:900px;overflow-wrap:anywhere}
 .rv>div{max-width:100%}
@@ -445,7 +442,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-j';
+var BUILD='2026.10.03-k';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -767,7 +764,7 @@ function viewPoem(){
   '<h1 class="ptitle">'+esc(p.title)+(p.sample?' <span class="badge">مثال</span>':'')+'</h1>'+
   '<p class="pmeta">'+meta.map(function(m){return '<span>'+m[0]+': <b>'+esc(m[1])+'</b></span>'}).join('')+'<span>'+num(p.verses.length)+' بيتًا</span></p>'+
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
-  '<div class="tools-row ptools" style="margin-top:8px">'+(speakSupported()?'<button class="icon-btn spk main'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button>':'')+'<button class="icon-btn spk" data-act="readopen">'+ico('book')+' وضع القراءة</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="خيارات عرض الأبيات" title="الخط والحجم والتشكيل">Aa</button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="4.5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19.5" cy="12" r="3"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
+  '<div class="tools-row ptools" style="margin-top:8px">'+'<button class="icon-btn spk" data-act="readopen">'+ico('book')+' وضع القراءة</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="خيارات عرض الأبيات" title="الخط والحجم والتشكيل">Aa</button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="4.5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19.5" cy="12" r="3"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+socialHtml(p)+
   (canE()?'<div class="acts-row"><button class="btn" data-act="edit">تعديل</button><button class="btn" data-act="star">'+(p.star?'إزالة التمييز ★':'تمييز ★')+'</button><button class="btn" data-act="move">نقل إلى '+SECT[other]+'</button>'+
   (!isO()?'':S.confirm?'<button class="btn danger" data-act="delok">تأكيد الحذف</button><button class="btn" data-act="delno">تراجع</button>':'<button class="btn danger" data-act="del">حذف</button>')+'</div>':'')+navHtml(p)+relatedHtml(p)+'<div class="printfoot">'+esc(S.data.settings.site)+(poetLabel(p)?' — '+esc(poetLabel(p)):'')+'</div>';
@@ -785,7 +782,7 @@ function readerVerse(p){
 function viewRead(){
   var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p){S.view='list';return viewList()}
   S.ri=Math.max(0,Math.min(S.ri,p.verses.length-1));
-  return '<div class="reader" id="reader" style="--fs:'+S.fs+'"><div class="rtop"><button class="icon-btn sq" data-act="rclose" aria-label="إغلاق وضع القراءة">✕</button><span class="rtitle">'+esc(p.title)+'</span><span class="rtools"><button class="icon-btn sq spk" data-act="speak" aria-label="استمع" title="استمع">'+(SP.on?STOP_SVG:SPK_SVG)+'</button><button class="icon-btn sq" data-act="font" aria-label="تغيير الخط" title="تغيير الخط">خ</button><button class="icon-btn sq" data-act="theme" aria-label="الوضع الليلي والنهاري">'+themeIco()+'</button><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="fsup" aria-label="تكبير الخط">أ+</button></span></div>'+
+  return '<div class="reader" id="reader" style="--fs:'+S.fs+'"><div class="rtop"><button class="icon-btn sq" data-act="rclose" aria-label="إغلاق وضع القراءة">✕</button><span class="rtitle">'+esc(p.title)+'</span><span class="rtools"><button class="icon-btn sq" data-act="font" aria-label="تغيير الخط" title="تغيير الخط">خ</button><button class="icon-btn sq" data-act="theme" aria-label="الوضع الليلي والنهاري">'+themeIco()+'</button><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="fsup" aria-label="تكبير الخط">أ+</button></span></div>'+
   '<div class="rprog"><i id="rpb"></i></div><div class="rbody" id="rbody">'+readerVerse(p)+'</div>'+
   '<div class="rbot"><button class="btn" id="rprev" data-act="rprev">→ السابق</button><span class="rmid"><span id="rcount"></span><small class="rhint">انقر أسفل الشاشة أو اسحب يمينًا للتالي · أعلاها أو اسحب يسارًا للسابق</small></span><button class="btn" id="rnext" data-act="rnext">التالي ←</button></div></div>';
 }
@@ -796,7 +793,7 @@ function readerUpdate(){
   $('#rcount').textContent=num(S.ri+1)+' / '+num(p.verses.length);
   $('#rprev').disabled=S.ri<=0;$('#rnext').disabled=S.ri>=p.verses.length-1;
 }
-function readStep(d){var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p)return;var n=S.ri+d;if(n<0||n>=p.verses.length)return;S.ri=n;S.dir=d>0?'nx':'pv';readerUpdate();if(SP.on){SP.tok++;try{speechSynthesis.cancel()}catch(e){}var tk=SP.tok;setTimeout(function(){speakFrom(n,tk)},80)}}
+function readStep(d){var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p)return;var n=S.ri+d;if(n<0||n>=p.verses.length)return;S.ri=n;S.dir=d>0?'nx':'pv';readerUpdate()}
 function viewEdit(){
   var p=S.edit,isNew=!S.data.poems.some(function(x){return x.id===p.id});
   return mast()+'<button class="back" data-act="'+(isNew?'home':'open')+'" data-id="'+p.id+'">→ إلغاء</button><h2 class="h">'+(isNew?'قصيدة جديدة':'تعديل القصيدة')+'</h2>'+
@@ -882,12 +879,10 @@ function sheetHtml(k){
   var p=cur(),rmax=Math.max(80,Math.round(fitCap()*100),Math.round(S.fs*100));
   if(k==='more')return '<div class="shead2"><b>المزيد</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+it('copypoem','copy','نسخ القصيدة')+it('sharelink','share','مشاركة رابط القصيدة')+it('printpoem','print','طباعة')+(p&&hasTash(p)?it('taqti3','wave','التقطيع العروضي'):'');
   var chips=FONTS.map(function(F,i){return '<button class="chip'+(i===S.fi?' on':'')+'" data-act="shfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
-  var rate=RATES.map(function(r,i){return '<button data-act="shrate" data-i="'+i+'" aria-pressed="'+(r[0]===SP.rate)+'"'+(r[0]===SP.rate?' class="on"':'')+'>'+r[1]+'</button>'}).join('');
   return '<div class="shead2"><b>عرض الأبيات</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
     '<div class="sblock"><div class="sbl">الخط</div><div class="chips">'+chips+'</div></div>'+
     '<div class="sblock"><div class="sbl">الحجم <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="'+rmax+'" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div>'+(rmax<160?'<p class="hint rhint2">يتوقف التكبير عند أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ.</p>':'')+'</div>'+
-    (p&&hasTash(p)?'<button class="srow" role="switch" aria-checked="'+S.tash+'" data-act="shtash"><span class="sic">'+ico('type')+'</span><span class="stx"><b>التشكيل</b><small>إظهار الحركات على الأبيات</small></span><span class="tgl'+(S.tash?' on':'')+'"><i></i></span></button>':'')+
-    (speakSupported()?'<div class="sblock"><div class="sbl">سرعة القراءة الصوتية</div><div class="seg3">'+rate+'</div></div>':'');
+    (p&&hasTash(p)?'<button class="srow" role="switch" aria-checked="'+S.tash+'" data-act="shtash"><span class="sic">'+ico('type')+'</span><span class="stx"><b>التشكيل</b><small>إظهار الحركات على الأبيات</small></span><span class="tgl'+(S.tash?' on':'')+'"><i></i></span></button>':'');
 }
 function openSheet(k){
   SHK=k;var s=$('#sheet'),fresh=!s;
@@ -943,7 +938,7 @@ function render(keep){
   if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   curKey=viewKey();
   if(S.view==='poem')TS[S.tab]=S.cur;else if(S.view==='list')TS[S.tab]=null;
-  if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash();stopSpeak()}
+  if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash()}
   if(S.view==='poem'&&S.social&&$('#cm-list'))loadComments();
   if(S.view==='poem'&&S.focus!==null){var fe=document.querySelectorAll('.vw')[S.focus];S.focus=null;if(fe){fe.classList.add('hit');setTimeout(function(){try{fe.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},80);setTimeout(function(){fe.classList.remove('hit')},2600)}}
   if(S.view==='read'&&S.ready)readerUpdate();
@@ -1023,51 +1018,6 @@ function shareVerse(p,v){
   });
 }
 
-/* ---------- listen (speech synthesis) ---------- */
-var SP={on:false,tok:0,rate:.85};
-var SPK_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-var STOP_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
-function speakSupported(){return 'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
-function arVoice(){try{var vs=speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++)if(/^ar/i.test(vs[i].lang))return vs[i]}catch(e){}return null}
-function spkLabel(){return SP.on?'إيقاف القراءة':'استمع'}
-function updSpeakBtns(){
-  document.querySelectorAll('.icon-btn[data-act="speak"]').forEach(function(el){
-    if(el.classList.contains('sq'))el.innerHTML=SP.on?STOP_SVG:SPK_SVG;else el.innerHTML=(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel();
-    el.classList.toggle('on',SP.on);
-  });
-}
-function markSpeak(i){
-  var els=document.querySelectorAll('.vw');
-  els.forEach(function(el,k){el.classList.toggle('speaking',k===i)});
-  if(i>=0&&els[i]&&S.view==='poem'){try{els[i].scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
-}
-function stopSpeak(){
-  if(!SP.on)return;SP.on=false;SP.tok++;
-  try{speechSynthesis.cancel()}catch(e){}
-  markSpeak(-1);updSpeakBtns();
-}
-function speakFrom(i,tok){
-  var p=cur();if(!p||!SP.on||tok!==SP.tok)return;
-  if(i>=p.verses.length){stopSpeak();return}
-  var v=p.verses[i];
-  if(S.view==='read'){S.ri=i;readerUpdate()}else markSpeak(i);
-  var u=new SpeechSynthesisUtterance(v[1]?v[0]+'، '+v[1]:v[0]);
-  u.lang='ar-SA';var vo=arVoice();if(vo)u.voice=vo;u.rate=SP.rate;
-  u.onend=function(){if(SP.on&&tok===SP.tok)speakFrom(i+1,tok)};
-  u.onerror=function(e){if(e&&(e.error==='interrupted'||e.error==='canceled'))return;stopSpeak();toast('تعذرت القراءة الصوتية على هذا الجهاز')};
-  speechSynthesis.speak(u);
-}
-function startSpeak(){
-  if(!speakSupported()){toast('متصفحك لا يدعم القراءة الصوتية');return}
-  var vs=[];try{vs=speechSynthesis.getVoices()||[]}catch(e){}
-  if(vs.length&&!arVoice())toast('لا يوجد صوت عربي في جهازك، قد تكون القراءة غير واضحة');
-  SP.on=true;SP.tok++;try{speechSynthesis.cancel()}catch(e){}
-  var tok=SP.tok;updSpeakBtns();
-  setTimeout(function(){speakFrom(S.view==='read'?S.ri:0,tok)},120);
-}
-if('speechSynthesis' in window){try{speechSynthesis.onvoiceschanged=function(){}}catch(e){}}
-var RATES=[[.7,'بطيئة'],[.85,'متوسطة'],[1,'عادية']];
-function rateLabel(){for(var i=0;i<RATES.length;i++)if(RATES[i][0]===SP.rate)return RATES[i][1];return 'متوسطة'}
 
 /* ---------- favourite verses, resume, related, new ---------- */
 var FVP='';
@@ -1433,7 +1383,7 @@ document.addEventListener('click',function(e){
     if(same)TS[n]=null;
     var rp=same?null:TS[n];
     if(rp&&S.data.poems.some(function(x){return x.id===rp})){
-      S.poet='';S.tag='';S.tab=n;if(S.cur!==rp)stopSpeak();pushPoem(rp);S.cur=rp;S.view='poem';S.focus=null;render();return;
+      S.poet='';S.tag='';S.tab=n;pushPoem(rp);S.cur=rp;S.view='poem';S.focus=null;render();return;
     }
     S.poet='';S.tag='';S.view='list';S.q='';S.bahr='';S.tab=n;
     render();if(n==='search'){var qi=$('#q');if(qi)qi.focus()}
@@ -1444,7 +1394,7 @@ document.addEventListener('click',function(e){
   else if(a==='addtag'){var ti=$('#e-tags'),tl=parseTags(ti.value);if(tl.indexOf(b.dataset.tag)<0)tl.push(b.dataset.tag);ti.value=tl.join('، ')}
   else if(a==='poet'){S.poet=b.dataset.poet;render()}
   else if(a==='clearpoet'){S.poet='';render()}
-  else if(a==='open'){delete SCR['poem:'+b.dataset.id];if(S.cur!==b.dataset.id)stopSpeak();pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;S.focus=b.dataset.vi!==undefined?+b.dataset.vi:null;saveLast(S.cur,S.focus||0);render()}
+  else if(a==='open'){delete SCR['poem:'+b.dataset.id];pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;S.focus=b.dataset.vi!==undefined?+b.dataset.vi:null;saveLast(S.cur,S.focus||0);render()}
   else if(a==='add'){if(!canE())return;S.edit=blank();S.view='edit';render()}
   else if(a==='edit'){p=cur();S.edit=JSON.parse(JSON.stringify(p));S.view='edit';render()}
   else if(a==='saveedit'){
@@ -1467,7 +1417,6 @@ document.addEventListener('click',function(e){
   else if(a==='sheetclose'){closeSheet()}
   else if(a==='shfont'){S.fi=+b.dataset.i;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}render(true);refreshSheet()}
   else if(a==='shtash'){S.tash=!S.tash;try{localStorage.setItem('diwan-tash',S.tash?'1':'0')}catch(x){}render(true);refreshSheet()}
-  else if(a==='shrate'){SP.rate=RATES[+b.dataset.i][0];refreshSheet()}
   else if(a==='themeset'){
     var r2=document.documentElement,v=b.dataset.v;
     if(v==='auto'){delete r2.dataset.theme;try{localStorage.removeItem(THEME)}catch(x){}}else{r2.dataset.theme=v;try{localStorage.setItem(THEME,v)}catch(x){}}
@@ -1511,8 +1460,6 @@ document.addEventListener('click',function(e){
   else if(a==='dismissnew'){S.newIds=[];S.onlyNew=false;render(true)}
   else if(a==='ms'){S.ms=!S.ms;LS.set('diwan-ms',S.ms);if(S.ms)document.documentElement.dataset.ms='1';else delete document.documentElement.dataset.ms;render(true)}
   else if(a==='printpoem'){window.print()}
-  else if(a==='speak'){if(SP.on)stopSpeak();else startSpeak()}
-  else if(a==='speed'){var ri=0;RATES.forEach(function(r,k){if(r[0]===SP.rate)ri=k});SP.rate=RATES[(ri+1)%RATES.length][0];b.textContent='السرعة: '+rateLabel()}
   else if(a==='install'){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;render(true)}}
   else if(a==='iosinst'){toast('في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»')}
   else if(a==='shfv'){if(shCur){fvToggle(shCur.p,shCur.v);b.textContent=fvHas(shCur.p.id,shCur.v)?'محفوظ في أبياتي ✓':'حفظ في أبياتي المفضلة'}}
