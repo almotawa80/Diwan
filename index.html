@@ -230,6 +230,10 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .fopt .fn{font-family:var(--f-ui);font-size:.8rem;color:var(--muted)}
 .fopt .fs{font-size:1.5rem;line-height:1.9}
 .fopt.on{border-color:var(--gold);background:var(--tint);box-shadow:0 0 0 1px var(--gold)}
+.shbox canvas{width:100%;height:auto;max-height:62vh;object-fit:contain;border-radius:10px;background:var(--tint)}
+.sws{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;transition:transform .15s,border-color .2s}
+.sw:hover{transform:scale(1.1)}.sw.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
 </style>
 </head>
 <body>
@@ -375,7 +379,7 @@ function buildVerses(lines,mode){
   return out;
 }
 function parseVerses(text,mode){return buildVerses(String(text).split('\n'),mode)}
-var SHARE_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M20 16l-5-5-8 8"/></svg>';
+var SHARE_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><path d="M8.5 13.4l7 4.2M15.5 6.4l-7 4.2"/></svg>';
 function versesHtml(vs,strip,share){
   var t=function(x){return esc(strip?plain(x):x)};
   return vs.map(function(v,i){
@@ -639,37 +643,46 @@ function route(){
 }
 window.addEventListener('popstate',function(){if(S.ready)route()});
 function wrapLine(ctx,text,maxW){var words=text.split(' '),lines=[],c='';words.forEach(function(w){var t=c?c+' '+w:w;if(ctx.measureText(t).width>maxW&&c){lines.push(c);c=w}else c=t});if(c)lines.push(c);return lines}
-function showImg(url){
-  var o=document.createElement('div');o.id='shov';
-  o.innerHTML='<div class="shbox"><img alt="بطاقة البيت" src="'+url+'"><div class="shacts"><a class="btn" download="bait.png" href="'+url+'">حفظ الصورة</a><button class="btn" data-act="shclose">إغلاق</button></div><small>على الجوال: اضغط على الصورة مطولًا ثم احفظها.</small></div>';
-  document.body.appendChild(o);
+var SH_THEMES=[
+  ['كحلي',['#1a2d5e','#0c111f'],'#d9b663','#f4efe0','#aab4cc','#7f8aa6'],
+  ['أسود',['#2a2a2e','#050506'],'#d9b663','#f4efe0','#b5b5bd','#85858f'],
+  ['أخضر',['#14614b','#06241c'],'#e3c673','#f3efe0','#b8d4c8','#86ab9c'],
+  ['عنابي',['#7a2038','#2a0a14'],'#e3c673','#f6ede4','#dcb3bd','#b2808c'],
+  ['كريمي',['#fbf6e9','#efe5cb'],'#97721d','#1c2233','#5d6577','#7a7260'],
+  ['ذهبي',['#ecd185','#bb9230'],'#3d2d08','#1a1305','#4a3a10','#6b5416']
+];
+var shSel=0,shCur=null;
+try{var shs=parseInt(localStorage.getItem('diwan-shth'));if(shs>=0&&shs<SH_THEMES.length)shSel=shs}catch(e){}
+function drawCard(c,p,v,T){
+  var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
+  var W=1080,H=1350;c.width=W;c.height=H;var x=c.getContext('2d');
+  var g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,T[1][0]);g.addColorStop(1,T[1][1]);x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle=T[2];x.lineWidth=3;x.strokeRect(46,46,W-92,H-92);x.lineWidth=1;x.strokeRect(64,64,W-128,H-128);
+  var dia=function(cx,cy,r){x.beginPath();x.moveTo(cx,cy-r);x.lineTo(cx+r,cy);x.lineTo(cx,cy+r);x.lineTo(cx-r,cy);x.closePath();x.fill()};
+  x.fillStyle=T[2];dia(W/2,170,14);x.fillRect(W/2-170,169,130,2);x.fillRect(W/2+40,169,130,2);
+  x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
+  var t=function(sx){return S.tash?sx:plain(sx)};
+  var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
+  var size=64;x.font=size+'px "'+fam+'", serif';
+  var lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,W-260).forEach(function(l){lines.push([l,i])})});
+  if(lines.length>6){size=52;x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,W-240).forEach(function(l){lines.push([l,i])})})}
+  var lh=Math.round(size*1.85),gap=parts.length>1?70:0,total=lines.length*lh+gap,y=(H-total)/2+lh/2-30,prev=0;
+  lines.forEach(function(L){if(L[1]!==prev){x.fillStyle=T[2];dia(W/2,y-lh/2+8,9);y+=gap;prev=L[1]}x.fillStyle=T[3];x.font=size+'px "'+fam+'", serif';x.fillText(L[0],W/2,y);y+=lh});
+  x.fillStyle=T[2];x.font='54px "Aref Ruqaa", serif';x.fillText(p.title,W/2,H-262);
+  var po=poetLabel(p);if(po){x.fillStyle=T[4];x.font='38px "Amiri", serif';x.fillText(po,W/2,H-200)}
+  x.fillStyle=T[5];x.font='28px "IBM Plex Sans Arabic", sans-serif';x.fillText(S.data.settings.site||'ديواني',W/2,H-130);
 }
+function shRedraw(){var c=$('#shc');if(c&&shCur)drawCard(c,shCur.p,shCur.v,SH_THEMES[shSel]);
+  document.querySelectorAll('.sw').forEach(function(el,i){el.classList.toggle('on',i===shSel)})}
+function shBlob(cb){var c=$('#shc');c.toBlob(function(b){if(!b)toast('تعذر إنشاء الصورة');else cb(b)},'image/png')}
 function shareVerse(p,v){
   var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
-  var load=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('64px "'+fam+'"'),document.fonts.load('52px "Aref Ruqaa"'),document.fonts.load('36px "IBM Plex Sans Arabic"')]):Promise.resolve();
+  var load=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('64px "'+fam+'"'),document.fonts.load('52px "Aref Ruqaa"'),document.fonts.load('36px "IBM Plex Sans Arabic"'),document.fonts.load('38px "Amiri"')]):Promise.resolve();
   load.catch(function(){}).then(function(){
-    var W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
-    var g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#1a2d5e');g.addColorStop(1,'#0c111f');x.fillStyle=g;x.fillRect(0,0,W,H);
-    x.strokeStyle='#d9b663';x.lineWidth=3;x.strokeRect(46,46,W-92,H-92);x.lineWidth=1;x.strokeRect(64,64,W-128,H-128);
-    var dia=function(cx,cy,r){x.beginPath();x.moveTo(cx,cy-r);x.lineTo(cx+r,cy);x.lineTo(cx,cy+r);x.lineTo(cx-r,cy);x.closePath();x.fill()};
-    x.fillStyle='#d9b663';dia(W/2,170,14);x.fillRect(W/2-170,169,130,2);x.fillRect(W/2+40,169,130,2);
-    x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
-    var t=function(s){return S.tash?s:plain(s)};
-    var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
-    var size=64;x.font=size+'px "'+fam+'", serif';
-    var lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,W-260).forEach(function(l){lines.push([l,i])})});
-    if(lines.length>6){size=52;x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,W-240).forEach(function(l){lines.push([l,i])})})}
-    var lh=Math.round(size*1.85),gap=parts.length>1?70:0,total=lines.length*lh+gap,y=(H-total)/2+lh/2-30,prev=0;
-    lines.forEach(function(L){if(L[1]!==prev){x.fillStyle='#d9b663';dia(W/2,y-lh/2+8,9);y+=gap;prev=L[1]}x.fillStyle='#f4efe0';x.font=size+'px "'+fam+'", serif';x.fillText(L[0],W/2,y);y+=lh});
-    x.fillStyle='#d9b663';x.font='54px "Aref Ruqaa", serif';x.fillText(p.title,W/2,H-262);
-    var po=poetLabel(p);if(po){x.fillStyle='#aab4cc';x.font='38px "Amiri", serif';x.fillText(po,W/2,H-200)}
-    x.fillStyle='#7f8aa6';x.font='28px "IBM Plex Sans Arabic", sans-serif';x.fillText(S.data.settings.site||'ديواني',W/2,H-130);
-    c.toBlob(function(b){
-      if(!b){toast('تعذر إنشاء الصورة');return}
-      var file=null;try{file=new File([b],'bait.png',{type:'image/png'})}catch(e){}
-      if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:p.title}).catch(function(){})}
-      else showImg(URL.createObjectURL(b));
-    },'image/png');
+    shCur={p:p,v:v};var old=$('#shov');if(old)old.remove();
+    var o=document.createElement('div');o.id='shov';
+    o.innerHTML='<div class="shbox"><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shacts"><button class="btn" data-act="shdo">مشاركة</button><button class="btn" data-act="shsave">حفظ الصورة</button><button class="btn" data-act="shclose">إغلاق</button></div></div>';
+    document.body.appendChild(o);shRedraw();
   });
 }
 function updatePrev(){var ta=$('#e-verses');if(!ta)return;var vs=parseVerses(ta.value,$('#e-mode').value);$('#e-prev').innerHTML=vs.length?versesHtml(vs):'<span class="hint">ستظهر الأبيات هنا.</span>';$('#e-cnt').textContent=vs.length?'('+num(vs.length)+' بيتًا)':''}
@@ -735,6 +748,13 @@ document.addEventListener('click',function(e){
     else{p=cur();var vv=p&&p.verses[+b.dataset.i];if(vv)shareVerse(p,vv)}
   }
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
+  else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
+  else if(a==='shsave'){shBlob(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('تم حفظ الصورة')})}
+  else if(a==='shdo'){shBlob(function(bl){
+    var file=null;try{file=new File([bl],'bait.png',{type:'image/png'})}catch(x){}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:shCur.p.title}).catch(function(){})}
+    else{var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();toast('تعذرت المشاركة المباشرة، حُفظت الصورة')}
+  })}
   else if(a==='setfont'){S.fi=+b.dataset.i;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}render(true)}
   else if(a==='font'){S.fi=(S.fi+1)%FONTS.length;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}toast('الخط: '+FONTS[S.fi][0]);if(S.view==='poem'||S.view==='more')render(true)}
   else if(a==='sharelink'){
