@@ -254,7 +254,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .shinfo{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:.9rem;cursor:pointer}
 .shinfo input{width:18px;height:18px;accent-color:var(--accent)}
 .shacts{flex-wrap:wrap}.shacts .btn{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-inline:12px}
-.btn.wa{color:#128c4a;border-color:#25d366}.btn.wa:hover{background:rgba(37,211,102,.12)}
+.btn.wa{color:#128c4a;border-color:#25d366;flex:0 0 52px;padding-inline:0}.btn.wa:hover{background:rgba(37,211,102,.12)}
 </style>
 </head>
 <body>
@@ -766,7 +766,7 @@ function shareVerse(p,v){
   load.catch(function(){}).then(function(){
     shCur={p:p,v:v};var old=$('#shov');if(old)old.remove();
     var o=document.createElement('div');o.id='shov';
-    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><label class="shinfo"><input type="checkbox" data-act="shinfo"'+(shInfo?' checked':'')+'> إظهار اسم القصيدة والشاعر على البطاقة</label><div class="shacts"><button class="btn wa" data-act="shwa"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7a3.5 3.5 0 0 1-1.6-1.6l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg> واتساب</button><button class="btn" data-act="shsave">حفظ كصورة</button><button class="btn" data-act="shdo">مشاركة</button></div></div>';
+    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><label class="shinfo"><input type="checkbox" data-act="shinfo"'+(shInfo?' checked':'')+'> إظهار اسم القصيدة والشاعر على البطاقة</label><div class="shacts"><button class="btn wa" data-act="shwa" title="واتساب" aria-label="مشاركة البطاقة على واتساب"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7a3.5 3.5 0 0 1-1.6-1.6l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg></button><button class="btn" data-act="shsave">حفظ كصورة</button><button class="btn" data-act="shdo">مشاركة</button></div></div>';
     document.body.appendChild(o);shRedraw();
   });
 }
@@ -888,10 +888,15 @@ document.addEventListener('click',function(e){
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
   else if(a==='shsz'){shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
   else if(a==='shwa'){
-    var wp=shCur.p,wv=shCur.v,wt=function(x){return S.tash?x:plain(x)};
-    var wurl=location.origin+location.pathname+pHash(wp.id);
-    var wtxt=wt(wv[0])+(wv[1]?'\n'+wt(wv[1]):'')+'\n\n— '+wp.title+(poetLabel(wp)?'، '+poetLabel(wp):'')+'\n'+wurl;
-    window.open('https://wa.me/?text='+encodeURIComponent(wtxt),'_blank','noopener');
+    shBlob(function(bl){
+      var file=null;try{file=new File([bl],'bait.png',{type:'image/png'})}catch(x){}
+      if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(function(){});return}
+      /* الحاسوب: ننسخ الصورة ثم نفتح واتساب لتلصقها */
+      var open=function(m){toast(m);window.open('https://web.whatsapp.com/','_blank','noopener')};
+      try{
+        navigator.clipboard.write([new ClipboardItem({'image/png':bl})]).then(function(){open('نُسخت البطاقة، الصقها في المحادثة (Ctrl+V)')},function(){open('احفظ الصورة ثم أرفقها في واتساب')});
+      }catch(x){open('احفظ الصورة ثم أرفقها في واتساب')}
+    });
   }
   else if(a==='shinfo'){shInfo=b.checked;try{localStorage.setItem('diwan-shinfo',shInfo?'1':'0')}catch(x){}shRedraw()}
   else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
