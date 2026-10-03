@@ -410,6 +410,8 @@ body{padding-block-start:0}
 .seg3 button{color:var(--ink);opacity:.8}.seg3 button.on{opacity:1}
 
 .shhead .shfv{margin-inline-start:auto;color:var(--ink);font-weight:600}
+
+.rhint2{margin:8px 0 0;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -443,7 +445,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-i';
+var BUILD='2026.10.03-j';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -855,17 +857,35 @@ function installRow(){
   if(ios)return r('iosinst','تثبيت التطبيق','كيف أضيف ديواني إلى الشاشة الرئيسية؟');
   return '';
 }
+var FITC={k:'',v:1.6};
+/* أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ على هذه الشاشة */
+function fitCap(){
+  var root=$('.verses');if(!root||S.view!=='poem')return 1.6;
+  var key=[S.cur,S.fi,S.tash,window.innerWidth].join('|');
+  if(FITC.k===key)return FITC.v;
+  var els=root.querySelectorAll('.v:not(.one) .s,.v:not(.one) .j'),old=root.style.getPropertyValue('--fs'),cap=1.6;
+  if(els.length){
+    cap=0.8;
+    for(var n=8;n<=16;n++){
+      var s=n/10,bad=false;root.style.setProperty('--fs',s);
+      for(var i=0;i<els.length;i++){var cs=getComputedStyle(els[i]),fs=parseFloat(cs.fontSize),lh=parseFloat(cs.lineHeight)||fs*1.9;if(els[i].getBoundingClientRect().height>lh*1.4){bad=true;break}}
+      if(bad)break;cap=s;
+    }
+  }
+  root.style.setProperty('--fs',old||S.fs);
+  FITC={k:key,v:cap};return cap;
+}
 var SHK='';
 function sheetHtml(k){
   var chev='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
   var it=function(act,icon,t){return '<button class="srow" data-act="'+act+'"><span class="sic">'+ico(icon)+'</span><span class="stx"><b>'+t+'</b></span>'+chev+'</button>'};
-  var p=cur();
+  var p=cur(),rmax=Math.max(80,Math.round(fitCap()*100),Math.round(S.fs*100));
   if(k==='more')return '<div class="shead2"><b>المزيد</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+it('copypoem','copy','نسخ القصيدة')+it('sharelink','share','مشاركة رابط القصيدة')+it('printpoem','print','طباعة')+(p&&hasTash(p)?it('taqti3','wave','التقطيع العروضي'):'');
   var chips=FONTS.map(function(F,i){return '<button class="chip'+(i===S.fi?' on':'')+'" data-act="shfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
   var rate=RATES.map(function(r,i){return '<button data-act="shrate" data-i="'+i+'" aria-pressed="'+(r[0]===SP.rate)+'"'+(r[0]===SP.rate?' class="on"':'')+'>'+r[1]+'</button>'}).join('');
   return '<div class="shead2"><b>عرض الأبيات</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
     '<div class="sblock"><div class="sbl">الخط</div><div class="chips">'+chips+'</div></div>'+
-    '<div class="sblock"><div class="sbl">الحجم <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="160" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div></div>'+
+    '<div class="sblock"><div class="sbl">الحجم <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="'+rmax+'" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div>'+(rmax<160?'<p class="hint rhint2">يتوقف التكبير عند أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ.</p>':'')+'</div>'+
     (p&&hasTash(p)?'<button class="srow" role="switch" aria-checked="'+S.tash+'" data-act="shtash"><span class="sic">'+ico('type')+'</span><span class="stx"><b>التشكيل</b><small>إظهار الحركات على الأبيات</small></span><span class="tgl'+(S.tash?' on':'')+'"><i></i></span></button>':'')+
     (speakSupported()?'<div class="sblock"><div class="sbl">سرعة القراءة الصوتية</div><div class="seg3">'+rate+'</div></div>':'');
 }
@@ -1573,7 +1593,7 @@ function syncImp(){
 document.addEventListener('input',function(e){
   if(e.target.id==='q'){S.q=e.target.value;renderList()}
   else if(e.target.id==='e-verses')updatePrev();
-  else if(e.target.dataset&&e.target.dataset.fsr){var fv=Math.min(1.6,Math.max(0.8,(+e.target.value)/100));S.fs=fv;try{localStorage.setItem('diwan-fs',fv)}catch(x){}var sp=$('#sprev');if(sp)sp.style.setProperty('--fs',fv);var vs2=$('.verses')||$('#reader');if(vs2)vs2.style.setProperty('--fs',fv);var fl=$('#fsv');if(fl)fl.textContent=num(Math.round(fv*100))+'٪'}
+  else if(e.target.dataset&&e.target.dataset.fsr){var fv=Math.min(1.6,Math.max(0.8,(+e.target.value)/100));if(S.view==='poem'&&fv>S.fs)fv=Math.min(fv,Math.max(fitCap(),S.fs));S.fs=fv;if(+e.target.value!==Math.round(fv*100))e.target.value=Math.round(fv*100);try{localStorage.setItem('diwan-fs',fv)}catch(x){}var sp=$('#sprev');if(sp)sp.style.setProperty('--fs',fv);var vs2=$('.verses')||$('#reader');if(vs2)vs2.style.setProperty('--fs',fv);var fl=$('#fsv');if(fl)fl.textContent=num(Math.round(fv*100))+'٪'}
 });
 document.addEventListener('change',function(e){
   var t=e.target;
