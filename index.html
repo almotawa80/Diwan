@@ -408,6 +408,8 @@ body{padding-block-start:0}
 .ptools .icon-btn{font-weight:600;font-size:.95rem;border-color:var(--muted)}
 .stx small{font-size:.85rem}
 .seg3 button{color:var(--ink);opacity:.8}.seg3 button.on{opacity:1}
+
+.shhead .shfv{margin-inline-start:auto;color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -441,7 +443,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-g';
+var BUILD='2026.10.03-h';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -603,7 +605,7 @@ function versesHtml(vs,strip,share){
   var t=function(x){return share?glossify(x,strip):esc(strip?plain(x):x)};
   return vs.map(function(v,i){
     var h=v[1]?'<div class="v"><span class="s">'+t(v[0])+'</span><span class="j">'+t(v[1])+'</span></div>':'<div class="v one"><span class="s">'+t(v[0])+'</span></div>';
-    return share?'<div class="vw" style="--d:'+Math.min(i,14)+'"><button class="fvb'+(fvHas(FVP,v)?' on':'')+'" data-act="fv" data-i="'+i+'" title="حفظ البيت في أبياتي المفضلة" aria-label="حفظ البيت في أبياتي المفضلة">'+STAR_SVG+'</button>'+h+'<button class="shv" data-act="shv" data-i="'+i+'" title="مشاركة البيت كصورة" aria-label="مشاركة البيت كصورة">'+SHARE_SVG+'</button></div>':h;
+    return share?'<div class="vw" style="--d:'+Math.min(i,14)+'">'+h+'<button class="shv" data-act="shv" data-i="'+i+'" title="مشاركة البيت كصورة" aria-label="مشاركة البيت كصورة">'+SHARE_SVG+'</button></div>':h;
   }).join('');
 }
 var MODES=[['auto','تلقائي (يُنصح به)'],['pair','شطر في كل سطر'],['split','بيت كامل في كل سطر'],['sep','بفاصل (... أو *)']];
@@ -985,7 +987,7 @@ function shareVerse(p,v){
   load.catch(function(){}).then(function(){
     shCur={p:p,v:v};var old=$('#shov');if(old)old.remove();
     var o=document.createElement('div');o.id='shov';
-    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><label class="shinfo"><input type="checkbox" data-act="shinfo"'+(shInfo?' checked':'')+'> إظهار اسم القصيدة والشاعر على البطاقة</label><div class="shacts"><button class="btn wa" data-act="shwa" title="واتساب" aria-label="مشاركة البطاقة على واتساب"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7a3.5 3.5 0 0 1-1.6-1.6l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg></button><button class="btn ic" data-act="shsave" title="حفظ كصورة" aria-label="حفظ كصورة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5"/><path d="M5 19h14"/></svg></button><button class="btn ic" data-act="shdo" title="مشاركة" aria-label="مشاركة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><path d="M8.5 13.4l7 4.2M15.5 6.4l-7 4.2"/></svg></button></div></div>';
+    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button><button class="icon-btn shfv" data-act="shfv">'+(fvHas(p.id,v)?'محفوظ في أبياتي ✓':'حفظ في أبياتي المفضلة')+'</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><label class="shinfo"><input type="checkbox" data-act="shinfo"'+(shInfo?' checked':'')+'> إظهار اسم القصيدة والشاعر على البطاقة</label><div class="shacts"><button class="btn wa" data-act="shwa" title="واتساب" aria-label="مشاركة البطاقة على واتساب"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7a3.5 3.5 0 0 1-1.6-1.6l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg></button><button class="btn ic" data-act="shsave" title="حفظ كصورة" aria-label="حفظ كصورة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5"/><path d="M5 19h14"/></svg></button><button class="btn ic" data-act="shdo" title="مشاركة" aria-label="مشاركة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><path d="M8.5 13.4l7 4.2M15.5 6.4l-7 4.2"/></svg></button></div></div>';
     document.body.appendChild(o);shRedraw();
   });
 }
@@ -1482,6 +1484,7 @@ document.addEventListener('click',function(e){
   else if(a==='speed'){var ri=0;RATES.forEach(function(r,k){if(r[0]===SP.rate)ri=k});SP.rate=RATES[(ri+1)%RATES.length][0];b.textContent='السرعة: '+rateLabel()}
   else if(a==='install'){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;render(true)}}
   else if(a==='iosinst'){toast('في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»')}
+  else if(a==='shfv'){if(shCur){fvToggle(shCur.p,shCur.v);b.textContent=fvHas(shCur.p.id,shCur.v)?'محفوظ في أبياتي ✓':'حفظ في أبياتي المفضلة'}}
   else if(a==='shv'){
     if(b.dataset.vot){var r=pickVotd(false);if(r)shareVerse(r.p,r.v)}
     else{p=cur();var vv=p&&p.verses[+b.dataset.i];if(vv)shareVerse(p,vv)}
