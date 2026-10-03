@@ -433,6 +433,13 @@ body{padding-block-start:0}
 .coll:hover{border-color:var(--gold);background:var(--tint)}
 .coll b{font-family:var(--f-display);font-weight:400;font-size:1.35rem;color:var(--accent);line-height:1.4}
 .coll span{font-size:.82rem;color:var(--muted)}
+
+.instbody{padding:4px 18px 10px;display:grid;gap:10px}
+.insteps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:st}
+.insteps li{counter-increment:st;display:flex;align-items:center;gap:12px;font-size:1rem;line-height:1.6}
+.insteps li::before{content:counter(st);flex:none;width:30px;height:30px;border-radius:50%;background:var(--tint);color:var(--gold);font-weight:700;display:grid;place-items:center;border:1px solid var(--gold)}
+.ist{width:22px;height:22px;vertical-align:middle;fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;margin-inline:2px}
+.instact{display:flex;gap:10px;justify-content:center;margin-top:4px}
 </style>
 </head>
 <body>
@@ -466,7 +473,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-s';
+var BUILD='2026.10.03-t';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -517,7 +524,7 @@ function startLocal(){
   S.data=load()||{poems:[SAMPLE],settings:{site:'ديواني',author:''}};
   S.data.settings.site=S.data.settings.site||'ديواني';
   try{if(localStorage.getItem(KEY)===null)save()}catch(e){storageOk=false}
-  S.ready=true;initNew();route();render();
+  S.ready=true;initNew();route();render();setTimeout(maybeInstallGuide,2500);
 }
 function boot(){
   var c=window.DIWAN_CONFIG||{};
@@ -526,7 +533,7 @@ function boot(){
   S.mode='supa';
   sb.auth.getSession().then(function(r){return loadRole(r.data&&r.data.session)})
     .then(function(){return Promise.all([fetchPoems(),fetchSettings()])})
-    .then(function(){S.ready=true;initNew();route();render();watch();initSocial()})
+    .then(function(){S.ready=true;initNew();route();render();watch();initSocial();setTimeout(maybeInstallGuide,2500)})
     .catch(function(){
       var c=null;try{c=JSON.parse(localStorage.getItem('diwan-cache')||'null')}catch(e){}
       if(c&&Array.isArray(c.poems)&&c.poems.length){S.data.poems=c.poems.map(function(x){return normPoem(x,x.id)});if(c.settings)S.data.settings=c.settings;S.offline=true}else S.err='error';
@@ -915,7 +922,7 @@ function installRow(){
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
   var r=function(act,t,d){return '<button class="srow" data-act="'+act+'"><span class="sic">'+ico('dl')+'</span><span class="stx"><b>'+t+'</b><small>'+d+'</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>'};
   if(deferredInstall)return r('install','تثبيت التطبيق','أضف ديواني إلى الشاشة الرئيسية');
-  if(ios)return r('iosinst','تثبيت التطبيق','كيف أضيف ديواني إلى الشاشة الرئيسية؟');
+  if(ios||/android/i.test(navigator.userAgent||''))return r('instguide','تثبيت التطبيق','كيف أضيف ديواني إلى الشاشة الرئيسية؟');
   return '';
 }
 var FITC={k:'',v:1.6};
@@ -970,8 +977,32 @@ function cardFits(sc){
   var lh=Math.round(size*1.8),gap=parts.length>1?76:0;
   return parts.length*lh+gap<=(shInfo?H-390:H-220)-235;
 }
+function instPlatform(){
+  var ua=navigator.userAgent||'';
+  if(/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))return 'ios';
+  if(/android/i.test(ua))return 'android';
+  return 'other';
+}
+function installSheet(){
+  var pf=instPlatform(),SH='<svg class="ist" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>',DT='<svg class="ist" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>';
+  var steps;
+  if(pf==='ios')steps=['اضغط زر المشاركة '+SH+' في شريط سفاري.','مرّر القائمة لأسفل واختر <b>«إضافة إلى الشاشة الرئيسية»</b>.','اضغط <b>«إضافة»</b> في أعلى الشاشة.'];
+  else if(pf==='android')steps=['اضغط قائمة المتصفح '+DT+' في أعلى كروم.','اختر <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.','اضغط <b>«تثبيت»</b>.'];
+  else steps=['افتح قائمة المتصفح '+DT+'.','اختر <b>«تثبيت ديواني»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.'];
+  return '<div class="shead2"><b>أضف ديواني إلى شاشتك الرئيسية</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
+  '<div class="instbody"><p class="hint">يفتح مباشرة كأي تطبيق، بلا شريط متصفح، ويعمل حتى بدون إنترنت.</p>'+
+  '<ol class="insteps">'+steps.map(function(s){return '<li><span>'+s+'</span></li>'}).join('')+'</ol>'+
+  (pf==='ios'?'<p class="hint">إن فتحتَ الرابط من واتساب أو تويتر، افتحه أولًا في سفاري ثم أضِفه.</p>':'')+
+  '<div class="instact">'+(deferredInstall?'<button class="btn primary" data-act="install">تثبيت الآن</button>':'')+'<button class="btn" data-act="sheetclose">'+(deferredInstall?'لاحقًا':'فهمت')+'</button></div></div>';
+}
+function maybeInstallGuide(){
+  if(SHK||!S.ready||S.view!=='list'||isStandalone()||instPlatform()==='other')return;
+  var last=LS.get('diwan-inst',0);if(last&&Date.now()-last<12096e5)return;
+  openSheet('install');
+}
 var SHK='';
 function sheetHtml(k){
+  if(k==='install')return installSheet();
   var chev='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
   var it=function(act,icon,t){return '<button class="srow" data-act="'+act+'"><span class="sic">'+ico(icon)+'</span><span class="stx"><b>'+t+'</b></span>'+chev+'</button>'};
   var p=cur(),rmax=Math.max(80,Math.round(fitCap()*100),Math.round(S.fs*100));
@@ -988,7 +1019,7 @@ function openSheet(k){
   s.className=fresh?'in':'';
   s.innerHTML='<div class="sbd" data-act="sheetclose"></div><div class="spanel" role="dialog" aria-modal="true"><div class="sgrab"></div>'+sheetHtml(k)+'</div>';
 }
-function closeSheet(){SHK='';var s=$('#sheet');if(s)s.remove()}
+function closeSheet(){if(SHK==='install')LS.set('diwan-inst',Date.now());SHK='';var s=$('#sheet');if(s)s.remove()}
 function refreshSheet(){if(SHK)openSheet(SHK)}
 function viewMore(){
   var chev='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
@@ -1029,7 +1060,7 @@ function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'
 function render(keep){
   if(!keep&&curKey)SCR[curKey]=window.scrollY;
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():viewTools();
-  hideTip();if(S.view!=='poem'&&SHK)closeSheet();var ap=$('#app');ap.innerHTML=h;renderNav();
+  hideTip();if(S.view!=='poem'&&SHK&&SHK!=='install')closeSheet();var ap=$('#app');ap.innerHTML=h;renderNav();
   if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   curKey=viewKey();
   if(S.view==='poem')TS[S.tab]=S.cur;else if(S.view==='list')TS[S.tab]=null;
@@ -1396,7 +1427,7 @@ document.addEventListener('click',function(e){
   else if(a==='ms'){S.ms=!S.ms;LS.set('diwan-ms',S.ms);if(S.ms)document.documentElement.dataset.ms='1';else delete document.documentElement.dataset.ms;render(true)}
   else if(a==='printpoem'){window.print()}
   else if(a==='install'){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;render(true)}}
-  else if(a==='iosinst'){toast('في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»')}
+  else if(a==='iosinst'||a==='instguide'){openSheet('install')}
   else if(a==='shfv'){if(shCur){fvToggle(shCur.p,shCur.v);b.textContent=fvHas(shCur.p.id,shCur.v)?'محفوظ في أبياتي ✓':'حفظ في أبياتي المفضلة'}}
   else if(a==='shv'){
     if(b.dataset.vot){var r=pickVotd(false);if(r)shareVerse(r.p,r.v)}
