@@ -76,7 +76,7 @@ textarea{font-family:var(--f-verse);font-size:1.2rem;line-height:2;resize:vertic
 .pmeta{display:flex;flex-wrap:wrap;gap:4px 18px;color:var(--muted);font-size:.92rem;margin:0 0 4px}
 .pmeta b{color:var(--ink);font-weight:600}
 .verses{margin-block:8px 20px;padding-block:6px}
-.v{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(2rem,9vw,5rem);padding-block:.2rem;font-family:var(--f-verse);font-size:clamp(1.3rem,3.4vw,1.75rem);line-height:2.1}
+.v{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;column-gap:clamp(2rem,9vw,5rem);padding-block:.2rem;font-family:var(--f-verse);font-size:calc(clamp(1.3rem,3.4vw,1.75rem) * var(--fz,1));line-height:var(--flh,2.1)}
 .v .s,.v .j{text-align:center}
 .v.one{grid-template-columns:1fr}
 .v.one .s{text-align:center}
@@ -112,7 +112,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .tools-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:2px}
 .nav2{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
 .nav2 .btn{max-width:48%;overflow:hidden;text-overflow:ellipsis}
-.verses .v{font-size:calc(clamp(1.3rem,3.4vw,1.75rem) * var(--fs,1))}
+.verses .v{font-size:calc(clamp(1.3rem,3.4vw,1.75rem) * var(--fs,1) * var(--fz,1))}
 .bulk{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:16px;padding:12px;border:1px dashed var(--gold);border-radius:10px}
 .prev{border:1px dashed var(--line);border-radius:10px;padding:6px 10px;max-height:340px;overflow:auto;background:var(--surface);color:var(--ink);margin-top:4px}
 .prev .v{font-size:1.15rem;line-height:1.9;column-gap:2rem}
@@ -139,7 +139,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .rtitle{font-family:var(--f-display);color:var(--accent);font-size:1.3rem;text-align:center;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtools{display:flex;gap:6px}
 .rbody{display:grid;place-items:center;overflow-y:auto;padding-block:12px}
-.rv{text-align:center;font-family:var(--f-verse);font-size:calc(clamp(1.9rem,7vw,3.2rem) * var(--fs,1));line-height:2.1;max-width:900px;animation:rin .3s ease}
+.rv{text-align:center;font-family:var(--f-verse);font-size:calc(clamp(1.9rem,7vw,3.2rem) * var(--fs,1) * var(--fz,1));line-height:var(--flh,2.1);max-width:900px;animation:rin .3s ease}
 .rorn{display:flex;justify-content:center;margin-block:.15em}
 .rorn i{width:9px;height:9px;background:var(--gold);transform:rotate(45deg)}
 .rbot{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:900px;width:100%;margin-inline:auto;color:var(--muted)}
@@ -147,7 +147,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 #bnav{display:none}
 @media (max-width:620px){
   .bulk{grid-template-columns:1fr}
-  .v{grid-template-columns:1fr;column-gap:0}
+  .v{grid-template-columns:minmax(0,1fr);column-gap:0}
   .v .s{text-align:start}.v .j{text-align:end;padding-inline-start:14%}
   .v.one .s{text-align:center}
   .form .two{grid-template-columns:1fr}
@@ -217,6 +217,8 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 @keyframes rnx{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
 @keyframes rpv{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
 .rbody{cursor:pointer;user-select:none;-webkit-user-select:none}
+.v .s,.v .j{overflow-wrap:break-word;min-width:0}
+.vw{contain:layout}
 </style>
 </head>
 <body>
@@ -250,9 +252,9 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var FONTS=[['أميري',"'Amiri','Traditional Arabic',serif"],['نسخ',"'Noto Naskh Arabic','Amiri',serif"],['رقعة',"'Aref Ruqaa','Amiri',serif"],['شهرزاد',"'Scheherazade New','Amiri',serif"]];S.fi=0;
+var FONTS=[['أميري',"'Amiri','Traditional Arabic',serif",1,2.1],['نسخ',"'Noto Naskh Arabic','Amiri',serif",.9,2.3],['شهرزاد',"'Scheherazade New','Amiri',serif",.94,2.2]];S.fi=0;
 try{var fi0=parseInt(localStorage.getItem('diwan-font'));if(fi0>=0&&fi0<FONTS.length)S.fi=fi0}catch(e){}
-function applyFont(){document.documentElement.style.setProperty('--f-verse',FONTS[S.fi][1])}applyFont();
+function applyFont(){var r=document.documentElement.style,F=FONTS[S.fi];r.setProperty('--f-verse',F[1]);r.setProperty('--fz',F[2]);r.setProperty('--flh',F[3])}applyFont();
 function isDark(){var r=document.documentElement;return r.dataset.theme?r.dataset.theme==='dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
 try{var fsv=parseFloat(localStorage.getItem('diwan-fs'));if(fsv>=0.8&&fsv<=1.6)S.fs=fsv;if(localStorage.getItem('diwan-tash')==='0')S.tash=false}catch(e){}
 try{var th=localStorage.getItem(THEME);if(th)document.documentElement.dataset.theme=th}catch(e){}
