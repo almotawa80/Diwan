@@ -251,6 +251,8 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 #gtip{position:fixed;z-index:70;max-width:min(300px,88vw);background:var(--surface);color:var(--ink);border:1px solid var(--gold);border-radius:12px;padding:10px 14px;box-shadow:0 10px 28px rgba(10,20,50,.25);font-family:var(--f-ui);font-size:.95rem;line-height:1.7;display:grid;gap:2px;animation:rin .2s ease}
 #gtip b{font-family:var(--f-verse);font-size:1.25rem;color:var(--accent)}
 #gtip span{color:var(--ink)}
+.shinfo{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:.9rem;cursor:pointer}
+.shinfo input{width:18px;height:18px;accent-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -726,7 +728,8 @@ var SH_THEMES=[
 ];
 var shSel=0,shCur=null;
 try{var shs=parseInt(localStorage.getItem('diwan-shth'));if(shs>=0&&shs<SH_THEMES.length)shSel=shs}catch(e){}
-var shScale=1;
+var shScale=1,shInfo=true;
+try{if(localStorage.getItem('diwan-shinfo')==='0')shInfo=false}catch(e){}
 try{var shz=parseFloat(localStorage.getItem('diwan-shsz'));if(shz>=0.6&&shz<=1.6)shScale=shz}catch(e){}
 function drawCard(c,p,v,T){
   var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
@@ -739,18 +742,18 @@ function drawCard(c,p,v,T){
   x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
   var t=function(sx){return S.tash?sx:plain(sx)};
   var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
-  var top=235,bot=H-390,avail=bot-top,gap=parts.length>1?76:0,size=Math.round(64*shScale),lines,lh,total;
+  var top=235,bot=shInfo?H-390:H-220,avail=bot-top,gap=parts.length>1?76:0,size=Math.round(64*shScale),lines,lh,total;
   var layout=function(){x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,W-240).forEach(function(l){lines.push([l,i])})});lh=Math.round(size*1.8);total=lines.length*lh+gap};
   layout();while(total>avail&&size>28){size-=3;layout()}
   var y=top+(avail-total)/2+lh/2,prev=0;
   lines.forEach(function(L){if(L[1]!==prev){x.fillStyle=T[2];dia(W/2,y-lh/2+8,9);y+=gap;prev=L[1]}x.fillStyle=T[3];x.font=size+'px "'+fam+'", serif';x.fillText(L[0],W/2,y);y+=lh});
   /* footer: ornament, title, poet, site */
-  orn(H-350,150);
+  if(shInfo){orn(H-350,150);
   var ts=64;x.font=ts+'px "Aref Ruqaa", serif';while(x.measureText(p.title).width>W-200&&ts>34){ts-=3;x.font=ts+'px "Aref Ruqaa", serif'}
   x.fillStyle=T[2];x.fillText(p.title,W/2,H-278);
   var po=poetLabel(p);
   if(po){x.fillStyle=T[4];var ps=44;x.font=ps+'px "Amiri", serif';var lab='— '+po+' —';while(x.measureText(lab).width>W-200&&ps>28){ps-=2;x.font=ps+'px "Amiri", serif'}x.fillText(lab,W/2,H-205)}
-  x.fillStyle=T[5];x.font='28px "IBM Plex Sans Arabic", sans-serif';x.fillText(S.data.settings.site||'ديواني',W/2,H-122);
+  x.fillStyle=T[5];x.font='28px "IBM Plex Sans Arabic", sans-serif';x.fillText(S.data.settings.site||'ديواني',W/2,H-122)}
 }
 function shRedraw(){var c=$('#shc');if(c&&shCur)drawCard(c,shCur.p,shCur.v,SH_THEMES[shSel]);
   document.querySelectorAll('.sw').forEach(function(el,i){el.classList.toggle('on',i===shSel)})}
@@ -761,7 +764,7 @@ function shareVerse(p,v){
   load.catch(function(){}).then(function(){
     shCur={p:p,v:v};var old=$('#shov');if(old)old.remove();
     var o=document.createElement('div');o.id='shov';
-    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><div class="shacts"><button class="btn" data-act="shdo">مشاركة</button><button class="btn" data-act="shsave">حفظ الصورة</button></div></div>';
+    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><label class="shinfo"><input type="checkbox" data-act="shinfo"'+(shInfo?' checked':'')+'> إظهار اسم القصيدة والشاعر على البطاقة</label><div class="shacts"><button class="btn" data-act="shdo">مشاركة</button><button class="btn" data-act="shsave">حفظ الصورة</button></div></div>';
     document.body.appendChild(o);shRedraw();
   });
 }
@@ -882,11 +885,12 @@ document.addEventListener('click',function(e){
   }
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
   else if(a==='shsz'){shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
+  else if(a==='shinfo'){shInfo=b.checked;try{localStorage.setItem('diwan-shinfo',shInfo?'1':'0')}catch(x){}shRedraw()}
   else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
   else if(a==='shsave'){shBlob(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('تم حفظ الصورة')})}
   else if(a==='shdo'){shBlob(function(bl){
     var file=null;try{file=new File([bl],'bait.png',{type:'image/png'})}catch(x){}
-    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:shCur.p.title}).catch(function(){})}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(function(){})}
     else{var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();toast('تعذرت المشاركة المباشرة، حُفظت الصورة')}
   })}
   else if(a==='setfont'){S.fi=+b.dataset.i;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}render(true)}
