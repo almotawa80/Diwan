@@ -176,7 +176,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .shv{position:absolute;inset-inline-end:0;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:0;background:none;color:var(--muted);opacity:.4;cursor:pointer;transition:opacity .2s,background .2s,color .2s}
 .vw:hover .shv,.shv:focus-visible{opacity:1}.shv:hover{background:var(--tint);color:var(--accent)}
 @media (hover:none){.shv{opacity:.55}}
-.tico{display:inline-block;font-size:1.2rem;line-height:1;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.tico{display:inline-grid;place-items:center;line-height:1;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
 .sq:hover .tico{transform:rotate(25deg) scale(1.12)}
 .tico.sun{animation:tspin .6s ease}.tico.moon{animation:tpop .5s ease}
 @keyframes tspin{from{transform:rotate(-120deg) scale(.4);opacity:0}to{transform:none;opacity:1}}
@@ -473,7 +473,9 @@ function chipsHtml(){
 /* ---------- views ---------- */
 var USER_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 var DOOR_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9"/></svg>';
-function themeIco(){return isDark()?'<span class="tico sun" aria-hidden="true">☀️</span>':'<span class="tico moon" aria-hidden="true">🌙</span>'}
+var SUN_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#d9b663" stroke="#d9b663" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7" fill="none"/></svg>';
+var MOON_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#2f4f9f" stroke="#2f4f9f" stroke-width="1.2" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>';
+function themeIco(){return isDark()?'<span class="tico sun" aria-hidden="true">'+SUN_SVG+'</span>':'<span class="tico moon" aria-hidden="true">'+MOON_SVG+'</span>'}
 function mast(){
   return '<div class="mast"><button class="brand" data-act="brand">'+esc(S.data.settings.site)+'</button><div class="mast-tools">'+''+'<button class="icon-btn sq" data-act="theme" title="تبديل الوضع الليلي والنهاري" aria-label="تبديل الوضع الليلي والنهاري">'+themeIco()+'</button>'+(S.mode==='supa'?'<button class="icon-btn sq usr'+(S.canEdit?' on':'')+'" data-act="admin" title="'+(S.canEdit?'خروج المدير':'دخول المدير')+'" aria-label="'+(S.canEdit?'خروج المدير':'دخول المدير')+'">'+(S.canEdit?DOOR_SVG:USER_SVG)+'</button>':'')+'</div></div><div class="orn"><i></i></div>';
 }
@@ -602,7 +604,7 @@ function viewMore(){
   var dark=isDark();
   var h=mast()+'<h2 class="h">الإعدادات</h2><div class="list">'+
   '<div class="sgrp">العرض</div>'+
-  row('theme','moon','المظهر',dark?'☀️ ليلي — اضغط للنهاري':'🌙 نهاري — اضغط لليلي')+
+  row('theme','moon','المظهر',dark?'ليلي · اضغط للنهاري':'نهاري · اضغط لليلي')+
   '<div class="sgrp">خط الأبيات</div><div class="fpick">'+FONTS.map(function(F,i){return '<button class="fopt'+(i===S.fi?' on':'')+'" data-act="setfont" data-i="'+i+'" style="font-family:'+F[1]+'"><span class="fn">'+F[0]+(i===3?' · أنيق وواضح':'')+'</span><span class="fs">قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ</span></button>'}).join('')+'</div>'+
   '<div class="row setrow"><span class="mrow">'+ico('gear')+'<span class="pn">حجم الأبيات</span></span><span class="stp"><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير">أ−</button><b>'+num(Math.round(S.fs*100))+'٪</b><button class="icon-btn sq" data-act="fsup" aria-label="تكبير">أ+</button></span></div>'+
   row('tash','pen','التشكيل',S.tash?'ظاهر':'مخفي')+
@@ -722,7 +724,7 @@ document.addEventListener('click',function(e){
   else if(a==='theme'){
     var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
     r.dataset.theme=dark?'light':'dark';try{localStorage.setItem(THEME,r.dataset.theme)}catch(x){}
-    document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});if(S.view==='more')render(true);toast(dark?'الوضع النهاري ☀️':'الوضع الليلي 🌙')
+    document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});if(S.view==='more')render(true);toast(dark?'الوضع النهاري':'الوضع الليلي')
   }
   else if(a==='admin'){if(S.mode!=='supa')return;if(S.canEdit)logout();else{S.view='login';render()}}
   else if(a==='logout'){logout()}
