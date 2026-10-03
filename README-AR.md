@@ -29,7 +29,7 @@
 
 ## 5) النشر على GitHub Pages
 1. أنشئ مستودعًا جديدًا في GitHub (اسمه مثلًا diwan).
-2. ارفع الملفات: `index.html` و`config.js` و`.nojekyll` (يمكنك رفع `README-AR.md` و`supabase-setup.sql` أيضًا، أما `poems-backup.json` فاحتفظ به عندك).
+2. ارفع الملفات: `index.html` و`config.js` و`.nojekyll` و`manifest.webmanifest` و`sw.js` ومجلد `icons` (للتثبيت كتطبيق) (يمكنك رفع `README-AR.md` و`supabase-setup.sql` أيضًا، أما `poems-backup.json` فاحتفظ به عندك).
 3. من Settings ثم Pages اختر Deploy from a branch ثم الفرع main والمجلد / (root) ثم Save.
 4. بعد دقيقة يظهر الرابط: `https://اسم-حسابك.github.io/diwan/`.
 5. لنطاق خاص بك: أضفه في Settings ثم Pages ثم Custom domain واتبع تعليمات GitHub.

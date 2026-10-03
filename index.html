@@ -6,6 +6,7 @@
 <title>ديواني</title>
 <meta name="description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
 <meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#233a6e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ديواني"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23233a6e'/%3E%3Cpath d='M32 14l9 18-9 18-9-18z' fill='%23d9b663'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -237,6 +238,13 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .shhead{display:flex;justify-content:space-between;align-items:center}
 .shsize{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:.9rem}
 .shhead{justify-content:flex-start}
+.vw.speaking .v{color:var(--accent);transition:color .3s}
+.vw.speaking{background:var(--tint);border-radius:10px;box-shadow:0 0 0 1px var(--gold) inset}
+.icon-btn.spk{display:inline-flex;align-items:center;gap:6px}.icon-btn.spk.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.icon-btn.sq.spk{display:inline-grid}
+.rtop{gap:6px}.rtop .sq{width:35px;height:35px;font-size:1rem}.rtools{gap:4px}.rtitle{font-size:1.15rem}
+.rbody{padding-inline:4px}.rv{width:100%;max-width:900px;overflow-wrap:anywhere}
+.rv>div{max-width:100%}
 </style>
 </head>
 <body>
@@ -293,7 +301,7 @@ function addMany(list){
   if(S.mode!=='supa'){list.forEach(function(p){S.data.poems.push(p)});save();return Promise.resolve()}
   return sb.from('poems').upsert(list.map(rowOf)).then(chk).then(fetchPoems);
 }
-function fetchPoems(){return sb.from('poems').select('*').then(chk).then(function(r){S.data.poems=(r.data||[]).map(function(x){return normPoem(x,x.id)})})}
+function fetchPoems(){return sb.from('poems').select('*').then(chk).then(function(r){S.data.poems=(r.data||[]).map(function(x){return normPoem(x,x.id)});try{localStorage.setItem('diwan-cache',JSON.stringify({poems:S.data.poems,settings:S.data.settings}))}catch(e){}})}
 function fetchSettings(){return sb.from('settings').select('*').eq('id',1).maybeSingle().then(chk).then(function(r){var x=r.data;if(x)S.data.settings={site:x.site||'ديواني',author:x.author||''}})}
 function loadRole(session){
   S.canEdit=false;S.isOwner=false;S.email='';
@@ -325,7 +333,10 @@ function boot(){
   sb.auth.getSession().then(function(r){return loadRole(r.data&&r.data.session)})
     .then(function(){return Promise.all([fetchPoems(),fetchSettings()])})
     .then(function(){S.ready=true;route();render();watch()})
-    .catch(function(){S.err='error';S.ready=true;render()});
+    .catch(function(){
+      var c=null;try{c=JSON.parse(localStorage.getItem('diwan-cache')||'null')}catch(e){}
+      if(c&&Array.isArray(c.poems)&&c.poems.length){S.data.poems=c.poems.map(function(x){return normPoem(x,x.id)});if(c.settings)S.data.settings=c.settings;S.offline=true}else S.err='error';
+      S.ready=true;route();render()});
   sb.auth.onAuthStateChange(function(ev){
     if(ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(refreshRole,0);
   });
@@ -508,6 +519,7 @@ function viewList(){
   var d=S.data.poems.filter(function(p){return p.section==='diwan'}).length,f=S.data.poems.length-d;
   var bahrs=[];S.data.poems.forEach(function(p){if(p.bahr&&bahrs.indexOf(p.bahr)<0)bahrs.push(p.bahr)});
   return mast()+'<p class="sub">'+num(d)+' في ديواني · '+num(f)+' في المفضلة'+(S.canEdit&&!S.isOwner?' · وضع المدير':'')+'</p>'+
+  (S.offline?'<div class="warn">أنت غير متصل بالإنترنت، تُعرض آخر نسخة محفوظة من القصائد.</div>':'')+
   (S.err?'<div class="warn">تعذر تحميل القصائد. تحقق من الاتصال بالإنترنت وأعد فتح الصفحة.</div>':'')+
   (S.mode==='local'?'<div class="warn">'+(storageOk?'الموقع غير مرتبط بقاعدة بيانات بعد (راجع ملف الإعداد)، فتُحفظ التعديلات في هذا المتصفح فقط.':'تعذر الحفظ في هذا المتصفح، فلن تبقى التعديلات بعد إغلاق الصفحة.')+'</div>':'')+
   '<div class="tabs" role="tablist">'+[['home','الرئيسية'],['diwan','ديواني'],['fav','المفضلة'],['poets','الشعراء']].map(function(t){return '<button class="tab" role="tab" aria-selected="'+(S.tab===t[0])+'" data-act="tab" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>'+
@@ -529,7 +541,7 @@ function viewPoem(){
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
   '<div class="tools-row" style="margin-top:8px"><button class="icon-btn" data-act="readopen">وضع القراءة</button><button class="icon-btn" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn" data-act="fsup" aria-label="تكبير الخط">أ+</button>'+
   (hasTash(p)?'<button class="icon-btn" data-act="tash">'+(S.tash?'إخفاء التشكيل':'إظهار التشكيل')+'</button>':'')+
-  '<button class="icon-btn" data-act="copypoem">نسخ القصيدة</button><button class="icon-btn" data-act="font" title="تغيير خط الأبيات">الخط: '+FONTS[S.fi][0]+'</button><button class="icon-btn" data-act="sharelink">مشاركة الرابط</button></div><div class="orn"><i></i></div><div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
+  '<button class="icon-btn" data-act="copypoem">نسخ القصيدة</button><button class="icon-btn" data-act="font" title="تغيير خط الأبيات">الخط: '+FONTS[S.fi][0]+'</button><button class="icon-btn spk'+(SP.on?' on':'')+'" data-act="speak">'+(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel()+'</button><button class="icon-btn" data-act="speed" title="سرعة القراءة">السرعة: '+rateLabel()+'</button><button class="icon-btn" data-act="sharelink">مشاركة الرابط</button></div><div class="orn"><i></i></div><div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+
   (canE()?'<div class="acts-row"><button class="btn" data-act="edit">تعديل</button><button class="btn" data-act="star">'+(p.star?'إزالة التمييز ★':'تمييز ★')+'</button><button class="btn" data-act="move">نقل إلى '+SECT[other]+'</button>'+
   (!isO()?'':S.confirm?'<button class="btn danger" data-act="delok">تأكيد الحذف</button><button class="btn" data-act="delno">تراجع</button>':'<button class="btn danger" data-act="del">حذف</button>')+'</div>':'')+navHtml(p);
@@ -546,7 +558,7 @@ function readerVerse(p){
 function viewRead(){
   var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p){S.view='list';return viewList()}
   S.ri=Math.max(0,Math.min(S.ri,p.verses.length-1));
-  return '<div class="reader" id="reader" style="--fs:'+S.fs+'"><div class="rtop"><button class="icon-btn sq" data-act="rclose" aria-label="إغلاق وضع القراءة">✕</button><span class="rtitle">'+esc(p.title)+'</span><span class="rtools"><button class="icon-btn sq" data-act="font" aria-label="تغيير الخط" title="تغيير الخط">خ</button><button class="icon-btn sq" data-act="theme" aria-label="الوضع الليلي والنهاري">'+themeIco()+'</button><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="fsup" aria-label="تكبير الخط">أ+</button></span></div>'+
+  return '<div class="reader" id="reader" style="--fs:'+S.fs+'"><div class="rtop"><button class="icon-btn sq" data-act="rclose" aria-label="إغلاق وضع القراءة">✕</button><span class="rtitle">'+esc(p.title)+'</span><span class="rtools"><button class="icon-btn sq spk" data-act="speak" aria-label="استمع" title="استمع">'+(SP.on?STOP_SVG:SPK_SVG)+'</button><button class="icon-btn sq" data-act="font" aria-label="تغيير الخط" title="تغيير الخط">خ</button><button class="icon-btn sq" data-act="theme" aria-label="الوضع الليلي والنهاري">'+themeIco()+'</button><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="fsup" aria-label="تكبير الخط">أ+</button></span></div>'+
   '<div class="rprog"><i id="rpb"></i></div><div class="rbody" id="rbody">'+readerVerse(p)+'</div>'+
   '<div class="rbot"><button class="btn" id="rprev" data-act="rprev">→ السابق</button><span class="rmid"><span id="rcount"></span><small class="rhint">انقر أسفل الشاشة للتالي · أعلاها للسابق · أو اسحب</small></span><button class="btn" id="rnext" data-act="rnext">التالي ←</button></div></div>';
 }
@@ -557,7 +569,7 @@ function readerUpdate(){
   $('#rcount').textContent=num(S.ri+1)+' / '+num(p.verses.length);
   $('#rprev').disabled=S.ri<=0;$('#rnext').disabled=S.ri>=p.verses.length-1;
 }
-function readStep(d){var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p)return;var n=S.ri+d;if(n<0||n>=p.verses.length)return;S.ri=n;S.dir=d>0?'nx':'pv';readerUpdate()}
+function readStep(d){var p=S.data.poems.find(function(x){return x.id===S.cur});if(!p)return;var n=S.ri+d;if(n<0||n>=p.verses.length)return;S.ri=n;S.dir=d>0?'nx':'pv';readerUpdate();if(SP.on){SP.tok++;try{speechSynthesis.cancel()}catch(e){}var tk=SP.tok;setTimeout(function(){speakFrom(n,tk)},80)}}
 function viewEdit(){
   var p=S.edit,isNew=!S.data.poems.some(function(x){return x.id===p.id});
   return mast()+'<button class="back" data-act="'+(isNew?'home':'open')+'" data-id="'+p.id+'">→ إلغاء</button><h2 class="h">'+(isNew?'قصيدة جديدة':'تعديل القصيدة')+'</h2>'+
@@ -606,6 +618,17 @@ function renderNav(){
   var items=[['home','الرئيسية','home'],['diwan','ديواني','book'],['search','بحث','search'],['fav','المفضلة','star'],['more','الإعدادات','gear']];
   nav.innerHTML=items.map(function(i){var c=i[0]==='diwan'?cnt.d:i[0]==='fav'?cnt.f:0;return '<button data-act="nav" data-nav="'+i[0]+'"'+(cur===i[0]?' aria-current="page"':'')+'>'+(c?'<em class="nb">'+num(c)+'</em>':'')+ico(i[2])+'<span>'+i[1]+'</span></button>'}).join('');
 }
+var deferredInstall=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstall=e;if(S.view==='more')render(true)});
+window.addEventListener('appinstalled',function(){deferredInstall=null;if(S.view==='more')render(true)});
+function isStandalone(){return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true}
+function installRow(){
+  if(isStandalone())return '';
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+  if(deferredInstall)return '<div class="sgrp">التطبيق</div><button class="row" data-act="install"><span class="mrow">'+ico('home')+'<span class="pn">تثبيت ديواني على الشاشة الرئيسية</span></span></button>';
+  if(ios)return '<div class="sgrp">التطبيق</div><button class="row" data-act="iosinst"><span class="mrow">'+ico('home')+'<span class="pn">كيف أضيف ديواني إلى الشاشة الرئيسية؟</span></span></button>';
+  return '';
+}
 function viewMore(){
   var row=function(act,icon,label,val,extra){return '<button class="row" data-act="'+act+'"'+(extra||'')+'><span class="mrow">'+ico(icon)+'<span class="pn">'+label+'</span>'+(val?'<span class="sval">'+val+'</span>':'')+'</span></button>'};
   var dark=isDark();
@@ -617,6 +640,7 @@ function viewMore(){
   row('tash','pen','التشكيل',S.tash?'ظاهر':'مخفي')+
   '<div class="sgrp">تصفح</div>'+
   row('tab','users','الشعراء','',' data-tab="poets"')+
+  installRow()+
   (S.mode==='supa'?'<div class="sgrp">الحساب</div>'+row('admin',S.canEdit?'out':'user',S.canEdit?'خروج المدير':'دخول المدير',S.canEdit?(S.isOwner?'المالك':'مدير'):''):'');
   if(canE()){
     h+='<div class="sgrp">إعدادات المدير</div>'+
@@ -630,7 +654,7 @@ function render(keep){
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='login'?viewLogin():viewTools();
   var ap=$('#app');ap.innerHTML=h;renderNav();
   if(!keep){window.scrollTo(0,0);ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
-  if(S.ready&&S.view!=='poem'&&S.view!=='read')clearHash();
+  if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash();stopSpeak()}
   if(S.view==='read'&&S.ready)readerUpdate();
 }
 function pHash(id){return '#/p/'+encodeURIComponent(id)}
@@ -695,6 +719,52 @@ function shareVerse(p,v){
     document.body.appendChild(o);shRedraw();
   });
 }
+
+/* ---------- listen (speech synthesis) ---------- */
+var SP={on:false,tok:0,rate:.85};
+var SPK_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+var STOP_SVG='<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+function speakSupported(){return 'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
+function arVoice(){try{var vs=speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++)if(/^ar/i.test(vs[i].lang))return vs[i]}catch(e){}return null}
+function spkLabel(){return SP.on?'إيقاف القراءة':'استمع'}
+function updSpeakBtns(){
+  document.querySelectorAll('.icon-btn[data-act="speak"]').forEach(function(el){
+    if(el.classList.contains('sq'))el.innerHTML=SP.on?STOP_SVG:SPK_SVG;else el.innerHTML=(SP.on?STOP_SVG:SPK_SVG)+' '+spkLabel();
+    el.classList.toggle('on',SP.on);
+  });
+}
+function markSpeak(i){
+  var els=document.querySelectorAll('.vw');
+  els.forEach(function(el,k){el.classList.toggle('speaking',k===i)});
+  if(i>=0&&els[i]&&S.view==='poem'){try{els[i].scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
+}
+function stopSpeak(){
+  if(!SP.on)return;SP.on=false;SP.tok++;
+  try{speechSynthesis.cancel()}catch(e){}
+  markSpeak(-1);updSpeakBtns();
+}
+function speakFrom(i,tok){
+  var p=cur();if(!p||!SP.on||tok!==SP.tok)return;
+  if(i>=p.verses.length){stopSpeak();return}
+  var v=p.verses[i];
+  if(S.view==='read'){S.ri=i;readerUpdate()}else markSpeak(i);
+  var u=new SpeechSynthesisUtterance(v[1]?v[0]+'، '+v[1]:v[0]);
+  u.lang='ar-SA';var vo=arVoice();if(vo)u.voice=vo;u.rate=SP.rate;
+  u.onend=function(){if(SP.on&&tok===SP.tok)speakFrom(i+1,tok)};
+  u.onerror=function(e){if(e&&(e.error==='interrupted'||e.error==='canceled'))return;stopSpeak();toast('تعذرت القراءة الصوتية على هذا الجهاز')};
+  speechSynthesis.speak(u);
+}
+function startSpeak(){
+  if(!speakSupported()){toast('متصفحك لا يدعم القراءة الصوتية');return}
+  var vs=[];try{vs=speechSynthesis.getVoices()||[]}catch(e){}
+  if(vs.length&&!arVoice())toast('لا يوجد صوت عربي في جهازك، قد تكون القراءة غير واضحة');
+  SP.on=true;SP.tok++;try{speechSynthesis.cancel()}catch(e){}
+  var tok=SP.tok;updSpeakBtns();
+  setTimeout(function(){speakFrom(S.view==='read'?S.ri:0,tok)},120);
+}
+if('speechSynthesis' in window){try{speechSynthesis.onvoiceschanged=function(){}}catch(e){}}
+var RATES=[[.7,'بطيئة'],[.85,'متوسطة'],[1,'عادية']];
+function rateLabel(){for(var i=0;i<RATES.length;i++)if(RATES[i][0]===SP.rate)return RATES[i][1];return 'متوسطة'}
 function updatePrev(){var ta=$('#e-verses');if(!ta)return;var vs=parseVerses(ta.value,$('#e-mode').value);$('#e-prev').innerHTML=vs.length?versesHtml(vs):'<span class="hint">ستظهر الأبيات هنا.</span>';$('#e-cnt').textContent=vs.length?'('+num(vs.length)+' بيتًا)':''}
 function renderList(){var lb=$('#listbox');if(!lb)return;lb.innerHTML=listHtml();var v=$('#votd');if(v)v.hidden=!!(S.q||S.bahr||S.tag)}
 
@@ -725,7 +795,7 @@ document.addEventListener('click',function(e){
   else if(a==='addtag'){var ti=$('#e-tags'),tl=parseTags(ti.value);if(tl.indexOf(b.dataset.tag)<0)tl.push(b.dataset.tag);ti.value=tl.join('، ')}
   else if(a==='poet'){S.poet=b.dataset.poet;render()}
   else if(a==='clearpoet'){S.poet='';render()}
-  else if(a==='open'){pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;render()}
+  else if(a==='open'){if(S.cur!==b.dataset.id)stopSpeak();pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;render()}
   else if(a==='add'){if(!canE())return;S.edit=blank();S.view='edit';render()}
   else if(a==='edit'){p=cur();S.edit=JSON.parse(JSON.stringify(p));S.view='edit';render()}
   else if(a==='saveedit'){
@@ -753,6 +823,10 @@ document.addEventListener('click',function(e){
   else if(a==='logout'){logout()}
   else if(a==='tools'){if(!isO())return;S.view='tools';render()}
   else if(a==='fab'){document.querySelector('.fabwrap').classList.toggle('open')}
+  else if(a==='speak'){if(SP.on)stopSpeak();else startSpeak()}
+  else if(a==='speed'){var ri=0;RATES.forEach(function(r,k){if(r[0]===SP.rate)ri=k});SP.rate=RATES[(ri+1)%RATES.length][0];b.textContent='السرعة: '+rateLabel()}
+  else if(a==='install'){if(deferredInstall){deferredInstall.prompt();deferredInstall=null;render(true)}}
+  else if(a==='iosinst'){toast('في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»')}
   else if(a==='shv'){
     if(b.dataset.vot){var r=pickVotd(false);if(r)shareVerse(r.p,r.v)}
     else{p=cur();var vv=p&&p.verses[+b.dataset.i];if(vv)shareVerse(p,vv)}
@@ -872,6 +946,7 @@ document.addEventListener('keydown',function(e){
   else if(e.key==='Escape'){S.view='poem';render(true)}
 });
 
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 render();
 boot();
 })();
