@@ -373,6 +373,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
+var BUILD='2026.10.03-c';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -810,7 +811,7 @@ function viewMore(){
     '<label class="row file"><span class="mrow">'+ico('up')+'<span class="pn">رفع ملف Word</span></span><input type="file" accept=".docx" data-file="1" id="f-more"></label>'+
     (isO()?row('tools','gear','الموقع والنسخ الاحتياطي والاستعادة'):'');
   }
-  return h+'</div>';
+  return h+'</div><p class="hint buildid">الإصدار '+BUILD+'</p>';
 }
 var SCR={},curKey='';
 function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':'')}
@@ -1514,7 +1515,9 @@ document.addEventListener('keydown',function(e){
   else if(e.key==='Escape'){S.view='poem';render(true)}
 });
 
-if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){try{r.update()}catch(e){}}).catch(function(){})});
+  var hadCtl=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadCtl){hadCtl=true;return}try{if(sessionStorage.getItem('diwan-rl')==='1')return;sessionStorage.setItem('diwan-rl','1')}catch(e){}location.reload()})}
 render();
 boot();
 })();

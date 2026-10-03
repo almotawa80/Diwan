@@ -1,5 +1,5 @@
 /* ديواني: عامل الخدمة. يتيح فتح الموقع دون إنترنت بعد أول زيارة. */
-var V = 'diwan-v2';
+var V = 'diwan-v3';
 var CORE = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-64.png'];
 
 self.addEventListener('install', function (e) {
@@ -24,7 +24,7 @@ self.addEventListener('fetch', function (e) {
   /* ملفات الموقع نفسه: الشبكة أولًا ثم النسخة المخزنة، فيصل التحديث فور توفره */
   if (url.origin === self.location.origin) {
     e.respondWith(
-      fetch(req).then(function (res) {
+      fetch(req, { cache: 'no-cache' }).then(function (res) {
         var copy = res.clone();
         caches.open(V).then(function (c) { c.put(req, copy); });
         return res;
