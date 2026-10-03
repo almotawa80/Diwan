@@ -811,10 +811,14 @@ function viewMore(){
   }
   return h+'</div>';
 }
+var SCR={},curKey='';
+function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':'')}
 function render(keep){
+  if(!keep&&curKey)SCR[curKey]=window.scrollY;
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():viewTools();
   hideTip();var aov=$('#arov');if(aov)aov.remove();var ap=$('#app');ap.innerHTML=h;renderNav();
-  if(!keep){window.scrollTo(0,0);ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
+  if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
+  curKey=viewKey();
   if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash();stopSpeak()}
   if(S.view==='poem'&&S.social&&$('#cm-list'))loadComments();
   if(S.view==='poem'&&S.focus!==null){var fe=document.querySelectorAll('.vw')[S.focus];S.focus=null;if(fe){fe.classList.add('hit');setTimeout(function(){try{fe.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},80);setTimeout(function(){fe.classList.remove('hit')},2600)}}
