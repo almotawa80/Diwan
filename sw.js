@@ -1,6 +1,6 @@
 /* ديواني: عامل الخدمة. يتيح فتح الموقع دون إنترنت بعد أول زيارة. */
-var V = 'diwan-v1';
-var CORE = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+var V = 'diwan-v2';
+var CORE = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-64.png'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(V).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));

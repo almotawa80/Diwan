@@ -7,7 +7,7 @@
 <meta name="description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
 <meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#233a6e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ديواني"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23233a6e'/%3E%3Cpath d='M32 14l9 18-9 18-9-18z' fill='%23d9b663'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png"><link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&family=Markazi+Text:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
@@ -339,6 +339,7 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
 .arn{font-size:.8rem;color:var(--muted);min-width:1.6em}.arb{flex:1;min-width:0}
 .arv{font-family:var(--f-verse);font-size:1.15rem;line-height:1.8}.arp{font-family:monospace;direction:ltr;text-align:center;color:var(--muted);letter-spacing:.12em;word-break:break-all;font-size:.85rem}
 .arf{text-align:center;color:var(--accent);font-weight:600}.arnote{font-size:.8rem}
+.blogo{width:34px;height:34px;border-radius:9px;vertical-align:middle;margin-inline-end:10px;margin-top:-6px;box-shadow:0 2px 8px rgba(10,20,50,.25)}
 </style>
 </head>
 <body>
@@ -648,7 +649,7 @@ var SUN_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#d9b663" stro
 var MOON_SVG='<svg viewBox="0 0 24 24" width="22" height="22" fill="#2f4f9f" stroke="#2f4f9f" stroke-width="1.2" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>';
 function themeIco(){return isDark()?'<span class="tico sun" aria-hidden="true">'+SUN_SVG+'</span>':'<span class="tico moon" aria-hidden="true">'+MOON_SVG+'</span>'}
 function mast(){
-  return '<div class="mast"><button class="brand" data-act="brand">'+esc(S.data.settings.site)+'</button><div class="mast-tools">'+''+'<button class="icon-btn sq" data-act="theme" title="تبديل الوضع الليلي والنهاري" aria-label="تبديل الوضع الليلي والنهاري">'+themeIco()+'</button>'+(S.mode==='supa'?'<button class="icon-btn sq usr'+(S.canEdit?' on':'')+'" data-act="admin" title="'+(S.canEdit?'خروج المدير':'دخول المدير')+'" aria-label="'+(S.canEdit?'خروج المدير':'دخول المدير')+'">'+(S.canEdit?DOOR_SVG:USER_SVG)+'</button>':'')+'</div></div><div class="orn"><i></i></div>';
+  return '<div class="mast"><button class="brand" data-act="brand"><img class="blogo" src="icons/favicon-64.png" alt="" width="34" height="34">'+esc(S.data.settings.site)+'</button><div class="mast-tools">'+''+'<button class="icon-btn sq" data-act="theme" title="تبديل الوضع الليلي والنهاري" aria-label="تبديل الوضع الليلي والنهاري">'+themeIco()+'</button>'+(S.mode==='supa'?'<button class="icon-btn sq usr'+(S.canEdit?' on':'')+'" data-act="admin" title="'+(S.canEdit?'خروج المدير':'دخول المدير')+'" aria-label="'+(S.canEdit?'خروج المدير':'دخول المدير')+'">'+(S.canEdit?DOOR_SVG:USER_SVG)+'</button>':'')+'</div></div><div class="orn"><i></i></div>';
 }
 function pickVotd(force){
   var pool=[];S.data.poems.forEach(function(p){p.verses.forEach(function(v,i){if(v[1])pool.push([p.id,i])})});
