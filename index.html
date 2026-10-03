@@ -373,7 +373,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-c';
+var BUILD='2026.10.03-d';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -813,14 +813,15 @@ function viewMore(){
   }
   return h+'</div><p class="hint buildid">الإصدار '+BUILD+'</p>';
 }
-var SCR={},curKey='';
-function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':'')}
+var SCR={},curKey='',TS={};
+function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':(S.view==='poem'?'poem:'+S.cur:''))}
 function render(keep){
   if(!keep&&curKey)SCR[curKey]=window.scrollY;
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():viewTools();
   hideTip();var aov=$('#arov');if(aov)aov.remove();var ap=$('#app');ap.innerHTML=h;renderNav();
   if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   curKey=viewKey();
+  if(S.view==='poem')TS[S.tab]=S.cur;else if(S.view==='list')TS[S.tab]=null;
   if(S.ready&&S.view!=='poem'&&S.view!=='read'){clearHash();stopSpeak()}
   if(S.view==='poem'&&S.social&&$('#cm-list'))loadComments();
   if(S.view==='poem'&&S.focus!==null){var fe=document.querySelectorAll('.vw')[S.focus];S.focus=null;if(fe){fe.classList.add('hit');setTimeout(function(){try{fe.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},80);setTimeout(function(){fe.classList.remove('hit')},2600)}}
@@ -1292,16 +1293,25 @@ document.addEventListener('click',function(e){
   var a=b.dataset.act,p;
   if(a==='home'){S.confirm=false;if(S.pushed&&/^#\/p\//.test(location.hash)){S.pushed=false;history.back();return}clearHash();S.view='list';render()}
   else if(a==='brand'){S.view='list';S.tab='home';S.poet='';S.q='';S.bahr='';S.tag='';render()}
-  else if(a==='nav'){var n=b.dataset.nav;S.confirm=false;S.poet='';S.tag='';
-    if(n==='more')S.view='more';else{S.view='list';if(n!==S.tab||n!=='search'){S.q='';S.bahr=''}S.tab=n}
-    render();if(n==='search'){var qi=$('#q');if(qi)qi.focus()}}
+  else if(a==='nav'){
+    var n=b.dataset.nav;S.confirm=false;
+    if(n==='more'){S.view='more';render();return}
+    var same=(n===S.tab&&S.view==='poem');
+    if(same)TS[n]=null;
+    var rp=same?null:TS[n];
+    if(rp&&S.data.poems.some(function(x){return x.id===rp})){
+      S.poet='';S.tag='';S.tab=n;if(S.cur!==rp)stopSpeak();pushPoem(rp);S.cur=rp;S.view='poem';S.focus=null;render();return;
+    }
+    S.poet='';S.tag='';S.view='list';S.q='';S.bahr='';S.tab=n;
+    render();if(n==='search'){var qi=$('#q');if(qi)qi.focus()}
+  }
   else if(a==='tab'){S.view='list';S.tab=b.dataset.tab;S.poet='';S.tag='';render()}
   else if(a==='tag'){S.tag=(b.dataset.tag===S.tag)?'':b.dataset.tag;render(true)}
   else if(a==='tagopen'){S.tag=b.dataset.tag;S.tab='home';S.q='';S.bahr='';S.poet='';S.view='list';render()}
   else if(a==='addtag'){var ti=$('#e-tags'),tl=parseTags(ti.value);if(tl.indexOf(b.dataset.tag)<0)tl.push(b.dataset.tag);ti.value=tl.join('، ')}
   else if(a==='poet'){S.poet=b.dataset.poet;render()}
   else if(a==='clearpoet'){S.poet='';render()}
-  else if(a==='open'){if(S.cur!==b.dataset.id)stopSpeak();pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;S.focus=b.dataset.vi!==undefined?+b.dataset.vi:null;saveLast(S.cur,S.focus||0);render()}
+  else if(a==='open'){delete SCR['poem:'+b.dataset.id];if(S.cur!==b.dataset.id)stopSpeak();pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;S.focus=b.dataset.vi!==undefined?+b.dataset.vi:null;saveLast(S.cur,S.focus||0);render()}
   else if(a==='add'){if(!canE())return;S.edit=blank();S.view='edit';render()}
   else if(a==='edit'){p=cur();S.edit=JSON.parse(JSON.stringify(p));S.view='edit';render()}
   else if(a==='saveedit'){
@@ -1352,8 +1362,8 @@ document.addEventListener('click',function(e){
   else if(a==='cmdel'){sb.from('comments').delete().eq('id',b.dataset.id).then(function(r){if(r.error){toast('تعذر الحذف');return}toast('حُذف التعليق');if(b.dataset.from==='pend'){fetchPending().then(function(){render(true)})}else loadComments()})}
   else if(a==='fvview'){S.view='fverses';render()}
   else if(a==='fvdel'){var fl=fvList();fl.splice(+b.dataset.i,1);LS.set('diwan-fv',fl);render(true)}
-  else if(a==='fvopen'){var fx=fvList()[+b.dataset.i];if(fx){var fp=S.data.poems.find(function(q){return q.id===fx.p});if(!fp){toast('القصيدة لم تعد موجودة');return}var fi=fp.verses.findIndex(function(v){return fvKey(v)===fx.k});pushPoem(fp.id);S.cur=fp.id;S.view='poem';S.focus=fi>-1?fi:null;saveLast(fp.id,fi>-1?fi:0);render()}}
-  else if(a==='resume'){var rl=LS.get('diwan-last',null);if(rl){pushPoem(rl.id);S.cur=rl.id;S.view='poem';S.focus=rl.vi>0?rl.vi:null;render()}}
+  else if(a==='fvopen'){var fx=fvList()[+b.dataset.i];if(fx){var fp=S.data.poems.find(function(q){return q.id===fx.p});if(!fp){toast('القصيدة لم تعد موجودة');return}var fi=fp.verses.findIndex(function(v){return fvKey(v)===fx.k});delete SCR['poem:'+fp.id];pushPoem(fp.id);S.cur=fp.id;S.view='poem';S.focus=fi>-1?fi:null;saveLast(fp.id,fi>-1?fi:0);render()}}
+  else if(a==='resume'){var rl=LS.get('diwan-last',null);if(rl){delete SCR['poem:'+rl.id];pushPoem(rl.id);S.cur=rl.id;S.view='poem';S.focus=rl.vi>0?rl.vi:null;render()}}
   else if(a==='shownew'){if(S.onlyNew){S.onlyNew=false}else if(S.newIds.length===1){pushPoem(S.newIds[0]);S.cur=S.newIds[0];S.view='poem';S.focus=null;render();return}else{S.onlyNew=true}render(true)}
   else if(a==='dismissnew'){S.newIds=[];S.onlyNew=false;render(true)}
   else if(a==='ms'){S.ms=!S.ms;LS.set('diwan-ms',S.ms);if(S.ms)document.documentElement.dataset.ms='1';else delete document.documentElement.dataset.ms;render(true)}
