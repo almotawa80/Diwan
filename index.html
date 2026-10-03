@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ديواني</title>
 <meta name="description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين."><meta property="og:site_name" content="ديواني"><meta property="og:url" content="https://almotawa80.github.io/Diwan/"><meta property="og:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ديواني"><meta name="twitter:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><link rel="canonical" href="https://almotawa80.github.io/Diwan/">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#233a6e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ديواني"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png"><link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -427,6 +427,12 @@ body{padding-block-start:0}
 .phrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .phpv{width:64px;height:64px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--tint);border:2px solid var(--gold);font-family:var(--f-display);font-size:1.8rem;color:var(--gold);flex:none}
 .phpv img{width:100%;height:100%;object-fit:cover;display:block}
+
+.colls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coll{display:grid;gap:2px;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;color:var(--ink);font-family:var(--f-ui);transition:border-color .2s,background .2s}
+.coll:hover{border-color:var(--gold);background:var(--tint)}
+.coll b{font-family:var(--f-display);font-weight:400;font-size:1.35rem;color:var(--accent);line-height:1.4}
+.coll span{font-size:.82rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -460,7 +466,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-r';
+var BUILD='2026.10.03-s';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -767,12 +773,23 @@ function barHtml(){
   '<div class="fsel"><select id="bahr" aria-label="البحر"><option value="">كل البحور</option>'+bahrs.map(function(b){return '<option'+(S.bahr===b?' selected':'')+'>'+esc(b)+'</option>'}).join('')+'</select>'+
   '<select id="sort" aria-label="الترتيب"><option value="new"'+(S.sort==='new'?' selected':'')+'>الأحدث</option><option value="title"'+(S.sort==='title'?' selected':'')+'>حسب العنوان</option></select></div></div>';
 }
+function featuredHtml(){
+  var l=S.data.poems.filter(function(p){return p.star&&!p.sample}).slice(0,5);
+  if(!l.length)return '';
+  return '<h3 class="sct">مختارات الشاعر</h3><ul class="list">'+l.map(rowHtml).join('')+'</ul>';
+}
+function collectionsHtml(){
+  var m={};S.data.poems.forEach(function(p){(p.tags||[]).forEach(function(t){m[t]=(m[t]||0)+1})});
+  var names=Object.keys(m).sort(function(a,b){return m[b]-m[a]||a.localeCompare(b,'ar')}).slice(0,8);
+  if(!names.length)return '';
+  return '<h3 class="sct">المجموعات</h3><div class="colls">'+names.map(function(t){return '<button class="coll" data-act="collopen" data-tag="'+esc(t)+'"><b>'+esc(t)+'</b><span>'+(m[t]===1?'قصيدة واحدة':m[t]===2?'قصيدتان':num(m[t])+(m[t]<=10?' قصائد':' قصيدة'))+'</span></button>'}).join('')+'</div>';
+}
 function homeHtml(){
   if(!S.data.poems.length)return listHtml();
   var all=S.data.poems.slice().sort(function(a,b){return (b.created||0)-(a.created||0)});
   var latest=S.onlyNew?visible():all.slice(0,6);
   return '<button class="srch fake" data-act="nav" data-nav="search">'+ico('search')+'<span>ابحث في القصائد والأبيات</span></button>'+
-  newBarHtml()+resumeHtml()+votdHtml()+
+  newBarHtml()+resumeHtml()+votdHtml()+(S.onlyNew?'':featuredHtml()+collectionsHtml())+
   '<h3 class="sct">'+(S.onlyNew?'القصائد الجديدة':'أحدث القصائد')+'</h3><ul class="list">'+latest.map(rowHtml).join('')+'</ul>'+
   '<div class="hacts"><button class="btn" data-act="nav" data-nav="diwan">كل القصائد</button><button class="btn" data-act="random">قصيدة عشوائية</button></div>';
 }
@@ -1313,6 +1330,7 @@ document.addEventListener('click',function(e){
   else if(a==='poet'){S.poet=b.dataset.poet;render(true)}
   else if(a==='clearpoet'){S.poet='';render(true)}
   else if(a==='favseg'){S.favseg=b.dataset.v;S.tag='';S.q='';S.bahr='';S.poet='';render(true)}
+  else if(a==='collopen'){S.tab='diwan';S.tag=b.dataset.tag;S.q='';S.bahr='';S.poet='';S.view='list';render()}
   else if(a==='random'){var rps=S.data.poems;if(!rps.length)return;var rq=rps[Math.floor(Math.random()*rps.length)];delete SCR['poem:'+rq.id];pushPoem(rq.id);S.cur=rq.id;S.view='poem';S.confirm=false;S.focus=null;render()}
   else if(a==='open'){delete SCR['poem:'+b.dataset.id];pushPoem(b.dataset.id);S.cur=b.dataset.id;S.view='poem';S.confirm=false;S.focus=b.dataset.vi!==undefined?+b.dataset.vi:null;saveLast(S.cur,S.focus||0);render()}
   else if(a==='add'){if(!canE())return;S.edit=blank();S.view='edit';render()}
