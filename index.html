@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ديواني</title>
-<meta name="description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين.">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديوان القصائد: قصائدي وقصائد أحبها لشعراء آخرين."><meta property="og:site_name" content="ديواني"><meta property="og:url" content="https://almotawa80.github.io/Diwan/"><meta property="og:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ديواني"><meta name="twitter:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><link rel="canonical" href="https://almotawa80.github.io/Diwan/">
+<meta name="description" content="ديواني: قصائد وأبيات شعرية تُقرأ وتُشارَك.">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="ديواني"><meta property="og:description" content="ديواني: قصائد وأبيات شعرية تُقرأ وتُشارَك."><meta property="og:site_name" content="ديواني"><meta property="og:url" content="https://almotawa80.github.io/Diwan/"><meta property="og:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="ديواني"><meta name="twitter:description" content="ديواني: قصائد وأبيات شعرية تُقرأ وتُشارَك."><meta name="twitter:image" content="https://almotawa80.github.io/Diwan/icons/og-image.png"><link rel="canonical" href="https://almotawa80.github.io/Diwan/">
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#233a6e"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ديواني"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png"><link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -473,7 +473,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-t';
+var BUILD='2026.10.03-u';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1049,7 +1049,7 @@ function viewMore(){
       '<label class="srow file">'+sic('up')+'<span class="stx"><b>رفع ملف Word</b><small>استيراد قصائد من ملف .docx</small></span>'+chev+'<input type="file" accept=".docx" data-file="1" id="f-more"></label>'+
       (S.social?nav('pendview','chat','تعليقات بانتظار المراجعة','اعتماد التعليقات أو حذفها',S.pending.length?num(S.pending.length):''):'')+
       '<div class="ssub">البيانات</div>'+
-      nav('stats','chart','إحصاءات الديوان','أعداد القصائد والشعراء والبحور')+
+      nav('stats','chart','إحصاءات الديوان','أعداد القصائد والأبيات والبحور')+
       nav('bookview','file','تصدير الديوان','طباعة · PDF · Word')+
       (isO()?nav('tools','shield','النسخ الاحتياطي والاستعادة','إعدادات الموقع وتنزيل النسخ ودمجها'):''));
   }
