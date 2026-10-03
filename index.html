@@ -362,9 +362,9 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
 .seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--tint);padding:4px;border-radius:12px}
 .seg3 button{border:0;background:none;border-radius:9px;padding:9px 4px;color:var(--muted);font:500 .92rem var(--f-ui);cursor:pointer}
 .seg3 button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.18)}
-.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:8px 6px;font-size:1.25rem;line-height:1.7;cursor:pointer;transition:border-color .2s,background .2s}
-.chip.on{border-color:var(--gold);background:var(--tint);box-shadow:0 0 0 1px var(--gold)}
+.fchips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.fchip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:8px 6px;font-size:1.25rem;line-height:1.7;cursor:pointer;transition:border-color .2s,background .2s}
+.fchip.on{border-color:var(--gold);background:var(--tint);box-shadow:0 0 0 1px var(--gold)}
 .sprev{margin-top:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;background:var(--bg);text-align:center;font-family:var(--f-verse);font-size:calc(clamp(1.3rem,3.4vw,1.75rem) * var(--fs,1) * var(--fz,1));line-height:var(--flh,2.1);overflow-wrap:anywhere}
 .rng{display:flex;align-items:center;gap:12px}
 .rng input{flex:1;min-width:0;accent-color:var(--gold)}
@@ -386,8 +386,8 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
 @keyframes sup{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
 .sgrab{width:38px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 2px}
 .shead2{display:flex;justify-content:space-between;align-items:center;padding:6px 14px 8px;font:600 1.05rem var(--f-ui)}
-#sheet .chips{grid-template-columns:repeat(4,1fr)}
-#sheet .chip{font-size:1.05rem;padding:6px 2px}
+#sheet .fchips{grid-template-columns:repeat(4,1fr)}
+#sheet .fchip{font-size:1.05rem;padding:6px 2px}
 #sheet .sblock:last-child,#sheet .srow:last-child{border-bottom:0}
 @media print{#sheet{display:none!important}}
 @media (prefers-reduced-motion:reduce){#sheet.in .spanel{animation:none}}
@@ -414,6 +414,19 @@ body{padding-block-start:0}
 .ptools{justify-content:flex-start;gap:12px}
 .ptools .icon-btn.sqb{width:48px;height:48px;padding:0;display:inline-grid;place-items:center;border:1.5px solid var(--muted);color:var(--ink)}
 .ptools .icon-btn.sqb svg{width:24px;height:24px}
+
+/* list controls */
+.bar2{display:grid;gap:10px;margin-bottom:10px}
+.srch{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px;height:48px}
+.srch:focus-within{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.srch svg{width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;flex:none}
+.srch input{flex:1;border:0;background:none;padding:0;height:100%;min-width:0;outline:0;border-radius:0;color:var(--ink)}
+.fsel{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fsel select{width:100%;height:44px;border-radius:12px;padding:0 14px 0 34px;appearance:none;-webkit-appearance:none;color:var(--ink);font-family:var(--f-ui);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat left 12px center/16px}
+.tagrow{display:flex;gap:8px;overflow-x:auto;padding-block:4px 8px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tagrow::-webkit-scrollbar{display:none}
+.tagrow .tg{white-space:nowrap;padding:7px 16px;font-size:.92rem;color:var(--ink)}
+.tagrow .tg[aria-pressed="true"]{color:var(--on-accent);font-weight:600}
 </style>
 </head>
 <body>
@@ -447,7 +460,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.03-m';
+var BUILD='2026.10.03-n';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -714,7 +727,7 @@ function chipsHtml(){
   var m={};scopeList().forEach(function(p){(p.tags||[]).forEach(function(t){m[t]=(m[t]||0)+1})});
   var names=Object.keys(m).sort(function(a,b){return m[b]-m[a]||a.localeCompare(b,'ar')});
   if(!names.length)return '';
-  return '<div class="chips" role="group" aria-label="الموضوعات"><button class="tg" aria-pressed="'+(!S.tag)+'" data-act="tag" data-tag="">الكل</button>'+names.map(function(t){return '<button class="tg" aria-pressed="'+(S.tag===t)+'" data-act="tag" data-tag="'+esc(t)+'">'+esc(t)+' · '+num(m[t])+'</button>'}).join('')+'</div>';
+  return '<div class="tagrow" role="group" aria-label="الموضوعات"><button class="tg" aria-pressed="'+(!S.tag)+'" data-act="tag" data-tag="">الكل</button>'+names.map(function(t){return '<button class="tg" aria-pressed="'+(S.tag===t)+'" data-act="tag" data-tag="'+esc(t)+'">'+esc(t)+' · '+num(m[t])+'</button>'}).join('')+'</div>';
 }
 
 /* ---------- views ---------- */
@@ -752,9 +765,9 @@ function viewList(){
   (S.err?'<div class="warn">تعذر تحميل القصائد. تحقق من الاتصال بالإنترنت وأعد فتح الصفحة.</div>':'')+
   (S.mode==='local'?'<div class="warn">'+(storageOk?'الموقع غير مرتبط بقاعدة بيانات بعد (راجع ملف الإعداد)، فتُحفظ التعديلات في هذا المتصفح فقط.':'تعذر الحفظ في هذا المتصفح، فلن تبقى التعديلات بعد إغلاق الصفحة.')+'</div>':'')+
   '<div class="tabs" role="tablist">'+[['home','الرئيسية'],['diwan','ديواني'],['fav','المفضلة'],['poets','الشعراء']].map(function(t){return '<button class="tab" role="tab" aria-selected="'+(S.tab===t[0])+'" data-act="tab" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>'+
-  '<div class="bar"><div class="grow"><input type="search" id="q" placeholder="ابحث في العنوان أو الشاعر أو الأبيات" value="'+esc(S.q)+'"></div>'+
-  '<select id="bahr" style="width:auto"><option value="">كل البحور</option>'+bahrs.map(function(b){return '<option'+(S.bahr===b?' selected':'')+'>'+esc(b)+'</option>'}).join('')+'</select>'+
-  '<select id="sort" style="width:auto" aria-label="الترتيب"><option value="new"'+(S.sort==='new'?' selected':'')+'>الأحدث</option><option value="title"'+(S.sort==='title'?' selected':'')+'>حسب العنوان</option></select></div>'+
+  '<div class="bar2"><label class="srch">'+ico('search')+'<input type="search" id="q" placeholder="ابحث في العنوان أو الشاعر أو الأبيات" value="'+esc(S.q)+'"></label>'+
+  '<div class="fsel"><select id="bahr" aria-label="البحر"><option value="">كل البحور</option>'+bahrs.map(function(b){return '<option'+(S.bahr===b?' selected':'')+'>'+esc(b)+'</option>'}).join('')+'</select>'+
+  '<select id="sort" aria-label="الترتيب"><option value="new"'+(S.sort==='new'?' selected':'')+'>الأحدث</option><option value="title"'+(S.sort==='title'?' selected':'')+'>حسب العنوان</option></select></div></div>'+
   chipsHtml()+
   (S.tab==='poets'&&S.poet?'<div class="chip">الشاعر: '+esc(S.poet)+'<button data-act="clearpoet" aria-label="إزالة">✕</button></div>':'')+
   newBarHtml()+(S.tab==='home'&&!S.q&&!S.bahr&&!S.tag?resumeHtml():'')+votdHtml()+'<div id="listbox">'+listHtml()+'</div>'+
@@ -917,9 +930,9 @@ function sheetHtml(k){
   var it=function(act,icon,t){return '<button class="srow" data-act="'+act+'"><span class="sic">'+ico(icon)+'</span><span class="stx"><b>'+t+'</b></span>'+chev+'</button>'};
   var p=cur(),rmax=Math.max(80,Math.round(fitCap()*100),Math.round(S.fs*100));
   if(k==='more')return '<div class="shead2"><b>المزيد</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+it('copypoem','copy','نسخ القصيدة')+it('sharelink','share','مشاركة رابط القصيدة')+it('printpoem','print','طباعة')+(p&&hasTash(p)?it('taqti3','wave','التقطيع العروضي'):'');
-  var chips=FONTS.map(function(F,i){return '<button class="chip'+(i===S.fi?' on':'')+'" data-act="shfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
+  var chips=FONTS.map(function(F,i){return '<button class="fchip'+(i===S.fi?' on':'')+'" data-act="shfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
   return '<div class="shead2"><b>عرض الأبيات</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
-    '<div class="sblock"><div class="sbl">الخط</div><div class="chips">'+chips+'</div></div>'+
+    '<div class="sblock"><div class="sbl">الخط</div><div class="fchips">'+chips+'</div></div>'+
     '<div class="sblock"><div class="sbl">الحجم <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="'+rmax+'" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div>'+(rmax<160?'<p class="hint rhint2">يتوقف التكبير عند أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ.</p>':'')+'</div>'+
     (p&&hasTash(p)?'<button class="srow" role="switch" aria-checked="'+S.tash+'" data-act="shtash"><span class="sic">'+ico('type')+'</span><span class="stx"><b>التشكيل</b><small>إظهار الحركات على الأبيات</small></span><span class="tgl'+(S.tash?' on':'')+'"><i></i></span></button>':'');
 }
@@ -939,12 +952,12 @@ function viewMore(){
   var card=function(t,body){return '<h3 class="sct">'+t+'</h3><section class="scard">'+body+'</section>'};
   var mode=document.documentElement.dataset.theme||'auto';
   var seg=[['light','نهاري'],['dark','ليلي'],['auto','تلقائي']].map(function(m){return '<button data-act="themeset" data-v="'+m[0]+'" aria-pressed="'+(mode===m[0])+'"'+(mode===m[0]?' class="on"':'')+'>'+m[1]+'</button>'}).join('');
-  var chips=FONTS.map(function(F,i){return '<button class="chip'+(i===S.fi?' on':'')+'" data-act="setfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
+  var chips=FONTS.map(function(F,i){return '<button class="fchip'+(i===S.fi?' on':'')+'" data-act="setfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
   var s1='قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ',s2='بِسِقطِ اللِوى بَينَ الدَخولِ فَحَوْمَلِ';
   var prev='<div class="sprev" id="sprev" style="--fs:'+S.fs+'"><div>'+(S.tash?s1:plain(s1))+'</div><div>'+(S.tash?s2:plain(s2))+'</div></div>';
   var read=card('القراءة والمظهر',
     '<div class="sblock"><div class="sbl">المظهر</div><div class="seg3">'+seg+'</div></div>'+
-    '<div class="sblock"><div class="sbl">خط الأبيات</div><div class="chips">'+chips+'</div>'+prev+'</div>'+
+    '<div class="sblock"><div class="sbl">خط الأبيات</div><div class="fchips">'+chips+'</div>'+prev+'</div>'+
     '<div class="sblock"><div class="sbl">حجم الأبيات <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="160" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div></div>'+
     sw('tash','type','التشكيل','إظهار الحركات على الأبيات',S.tash)+
     sw('ms','book','نمط المخطوطات','ورق وزخارف تشبه المخطوطات القديمة',S.ms));
