@@ -225,6 +225,11 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:default}
 .setrow:hover{background:none;padding-inline:2px}
 .stp{display:flex;align-items:center;gap:8px}
+.fpick{display:grid;gap:8px;margin-block:6px}
+.fopt{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:center;transition:border-color .2s,background .2s}
+.fopt .fn{font-family:var(--f-ui);font-size:.8rem;color:var(--muted)}
+.fopt .fs{font-size:1.5rem;line-height:1.9}
+.fopt.on{border-color:var(--gold);background:var(--tint);box-shadow:0 0 0 1px var(--gold)}
 </style>
 </head>
 <body>
@@ -258,7 +263,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var FONTS=[['أميري',"'Amiri','Traditional Arabic',serif",1,2.1],['نسخ',"'Noto Naskh Arabic','Amiri',serif",.9,2.3],['شهرزاد',"'Scheherazade New','Amiri',serif",.94,2.2]];S.fi=0;
+var FONTS=[['أميري',"'Amiri','Traditional Arabic',serif",1,2.1],['نسخ',"'Noto Naskh Arabic','Amiri',serif",.9,2.3],['شهرزاد',"'Scheherazade New','Amiri',serif",.94,2.2],['رقعة',"'Aref Ruqaa','Amiri',serif",.8,2.4]];S.fi=0;
 try{var fi0=parseInt(localStorage.getItem('diwan-font'));if(fi0>=0&&fi0<FONTS.length)S.fi=fi0}catch(e){}
 function applyFont(){var r=document.documentElement.style,F=FONTS[S.fi];r.setProperty('--f-verse',F[1]);r.setProperty('--fz',F[2]);r.setProperty('--flh',F[3])}applyFont();
 function isDark(){var r=document.documentElement;return r.dataset.theme?r.dataset.theme==='dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
@@ -598,7 +603,7 @@ function viewMore(){
   var h=mast()+'<h2 class="h">الإعدادات</h2><div class="list">'+
   '<div class="sgrp">العرض</div>'+
   row('theme','moon','المظهر',dark?'☀️ ليلي — اضغط للنهاري':'🌙 نهاري — اضغط لليلي')+
-  row('font','book','خط الأبيات',FONTS[S.fi][0])+
+  '<div class="sgrp">خط الأبيات</div><div class="fpick">'+FONTS.map(function(F,i){return '<button class="fopt'+(i===S.fi?' on':'')+'" data-act="setfont" data-i="'+i+'" style="font-family:'+F[1]+'"><span class="fn">'+F[0]+(i===3?' · مثل العنوان':'')+'</span><span class="fs">قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ</span></button>'}).join('')+'</div>'+
   '<div class="row setrow"><span class="mrow">'+ico('gear')+'<span class="pn">حجم الأبيات</span></span><span class="stp"><button class="icon-btn sq" data-act="fsdown" aria-label="تصغير">أ−</button><b>'+num(Math.round(S.fs*100))+'٪</b><button class="icon-btn sq" data-act="fsup" aria-label="تكبير">أ+</button></span></div>'+
   row('tash','pen','التشكيل',S.tash?'ظاهر':'مخفي')+
   '<div class="sgrp">تصفح</div>'+
@@ -728,6 +733,7 @@ document.addEventListener('click',function(e){
     else{p=cur();var vv=p&&p.verses[+b.dataset.i];if(vv)shareVerse(p,vv)}
   }
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
+  else if(a==='setfont'){S.fi=+b.dataset.i;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}render(true)}
   else if(a==='font'){S.fi=(S.fi+1)%FONTS.length;applyFont();try{localStorage.setItem('diwan-font',S.fi)}catch(x){}toast('الخط: '+FONTS[S.fi][0]);if(S.view==='poem'||S.view==='more')render(true)}
   else if(a==='sharelink'){
     p=cur();var url=location.origin+location.pathname+pHash(p.id);
