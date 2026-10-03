@@ -235,6 +235,8 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;transition:transform .15s,border-color .2s}
 .sw:hover{transform:scale(1.1)}.sw.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
 .shhead{display:flex;justify-content:space-between;align-items:center}
+.shsize{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:.9rem}
+.shhead{justify-content:flex-start}
 </style>
 </head>
 <body>
@@ -689,7 +691,7 @@ function shareVerse(p,v){
   load.catch(function(){}).then(function(){
     shCur={p:p,v:v};var old=$('#shov');if(old)old.remove();
     var o=document.createElement('div');o.id='shov';
-    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button><span class="stp"><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></span></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shacts"><button class="btn" data-act="shdo">مشاركة</button><button class="btn" data-act="shsave">حفظ الصورة</button></div></div>';
+    o.innerHTML='<div class="shbox"><div class="shhead"><button class="icon-btn sq" data-act="shclose" aria-label="إغلاق" title="إغلاق">✕</button></div><canvas id="shc" aria-label="معاينة البطاقة"></canvas><div class="sws">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div><div class="shsize"><span>حجم الخط</span><button class="icon-btn sq" data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button class="icon-btn sq" data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></div><div class="shacts"><button class="btn" data-act="shdo">مشاركة</button><button class="btn" data-act="shsave">حفظ الصورة</button></div></div>';
     document.body.appendChild(o);shRedraw();
   });
 }
