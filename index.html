@@ -456,6 +456,7 @@ h3.sct .dnote{margin-inline-start:6px}
 <body>
 
 <div id="app"></div>
+<iframe name="lf-frame" title="" hidden style="display:none"></iframe>
 <nav id="bnav" aria-label="التنقل"></nav>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -484,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-f';
+var BUILD='2026.10.04-g';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -520,10 +521,10 @@ function addMany(list){
 function fetchPoems(){return sb.from('poems').select('*').then(chk).then(function(r){var rows=r.data||[];if(rows.length)S.polyExt=('draft' in rows[0])&&('kind' in rows[0]);var all=rows.map(function(x){return normPoem(x,x.id)});splitRows(all);try{localStorage.setItem('diwan-cache',JSON.stringify({poems:all,settings:S.data.settings}))}catch(e){}})}
 function fetchSettings(){return sb.from('settings').select('*').eq('id',1).maybeSingle().then(chk).then(function(r){var x=r.data;if(x){S.settingsExt=('bio' in x);S.photoExt=('photo' in x);S.data.settings={site:x.site||'ديواني',author:x.author||'',photo:x.photo||'',bio:x.bio||'',links:Array.isArray(x.links)?x.links:[]}}})}
 function loadRole(session){
-  S.canEdit=false;S.isOwner=false;S.email='';
-  if(!session||!session.user)return Promise.resolve();
+  if(!session||!session.user){S.canEdit=false;S.isOwner=false;S.email='';return Promise.resolve()}
   S.email=session.user.email||'';
   return sb.from('staff').select('role').eq('user_id',session.user.id).maybeSingle().then(function(r){
+    if(r&&r.error)return;
     var role=r&&r.data&&r.data.role;S.canEdit=!!role;S.isOwner=role==='owner';
   },function(){});
 }
@@ -544,8 +545,9 @@ function startLocal(){
 function boot(){
   var c=window.DIWAN_CONFIG||{};
   if(!c.SUPABASE_URL||!c.SUPABASE_ANON_KEY||!window.supabase){startLocal();return}
-  try{sb=window.supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY)}catch(e){startLocal();return}
+  try{sb=window.supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}})}catch(e){startLocal();return}
   S.mode='supa';
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
   sb.auth.getSession().then(function(r){return loadRole(r.data&&r.data.session)})
     .then(function(){return Promise.all([fetchPoems(),fetchSettings()])})
     .then(function(){S.ready=true;initNew();route();render();watch();initSocial();setTimeout(maybeInstallGuide,2500)})
@@ -560,7 +562,7 @@ function boot(){
 function watch(){
   var later=function(){clearTimeout(fetchT);fetchT=setTimeout(function(){Promise.all([fetchPoems(),fetchSettings()]).then(softRefresh).catch(function(){})},500)};
   try{sb.channel('diwan').on('postgres_changes',{event:'*',schema:'public',table:'poems'},later).on('postgres_changes',{event:'*',schema:'public',table:'settings'},later).subscribe()}catch(e){}
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)later()});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){later();refreshRole()}});
 }
 function doLogin(){
   var email=val('l-email'),pw=($('#l-pass')||{}).value||'';
@@ -786,7 +788,7 @@ function viewLogin(){
   var head=mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تسجيل الدخول</h2>';
   if(S.mode!=='supa')return head+'<div class="box"><p>الموقع غير مرتبط بقاعدة بيانات بعد، لذلك لا يوجد تسجيل دخول. اتبع ملف الإعداد لربطه بـ Supabase.</p></div>';
   if(S.email)return head+'<div class="box"><h3>'+(S.isOwner?'مالك الموقع':S.canEdit?'مدير':'حساب بلا صلاحية إدارة')+'</h3><p dir="ltr" style="text-align:start;margin:0">'+esc(S.email)+'</p>'+(S.canEdit?'':'<p class="hint">هذا الحساب مسجّل لكنه غير مضاف إلى المديرين. اطلب من مالك الموقع إضافته.</p>')+'<div><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>';
-  return head+'<form class="box" id="lf" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" autocomplete="username" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول لصاحب الموقع ومن يديرونه. القراءة متاحة للجميع دون حساب.</p></form>';
+  return head+'<form class="box" id="lf" method="post" action="about:blank" target="lf-frame" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" name="password" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول لصاحب الموقع ومن يديرونه. القراءة متاحة للجميع دون حساب.</p></form>';
 }
 function viewLoading(){return mast()+'<div class="loading">جارٍ تحميل القصائد…</div>'}
 function barHtml(){
@@ -1595,7 +1597,7 @@ document.addEventListener('change',function(e){
   }
 });
 document.addEventListener('submit',function(e){
-  if(e.target.id==='lf'){e.preventDefault();doLogin()}
+  if(e.target.id==='lf'){doLogin()}
   else if(e.target.id==='cf'){
     e.preventDefault();var body=($('#c-body').value||'').trim(),nm=($('#c-name').value||'').trim(),btn=$('#c-btn');
     if(body.length<2){toast('اكتب تعليقًا');return}
