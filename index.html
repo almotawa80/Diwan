@@ -477,7 +477,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-a';
+var BUILD='2026.10.04-b';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -772,10 +772,10 @@ function votdHtml(){
   return '<div class="votd" id="votd"'+((S.q||S.bahr||S.tag)?' hidden':'')+'><small>✦ بيت اليوم ✦</small><div class="v"><span class="s">'+esc(plain(r.v[0]))+'</span><span class="j">'+esc(plain(r.v[1]))+'</span></div><div class="votd-foot"><button class="linkbtn" data-act="open" data-id="'+r.p.id+'">'+esc(r.p.title)+'</button><span>·</span><button class="linkbtn" data-act="votd">بيت آخر</button><span>·</span><button class="linkbtn" data-act="shv" data-vot="1">مشاركة كصورة</button></div></div>';
 }
 function viewLogin(){
-  var head=mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">دخول المدير</h2>';
+  var head=mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تسجيل الدخول</h2>';
   if(S.mode!=='supa')return head+'<div class="box"><p>الموقع غير مرتبط بقاعدة بيانات بعد، لذلك لا يوجد تسجيل دخول. اتبع ملف الإعداد لربطه بـ Supabase.</p></div>';
   if(S.email)return head+'<div class="box"><h3>'+(S.isOwner?'مالك الموقع':S.canEdit?'مدير':'حساب بلا صلاحية إدارة')+'</h3><p dir="ltr" style="text-align:start;margin:0">'+esc(S.email)+'</p>'+(S.canEdit?'':'<p class="hint">هذا الحساب مسجّل لكنه غير مضاف إلى المديرين. اطلب من مالك الموقع إضافته.</p>')+'<div><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>';
-  return head+'<form class="box" id="lf" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" autocomplete="username" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول للمالك والمديرين فقط. القراءة متاحة للجميع دون حساب.</p></form>';
+  return head+'<form class="box" id="lf" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" autocomplete="username" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول لصاحب الموقع ومن يديرونه. القراءة متاحة للجميع دون حساب.</p></form>';
 }
 function viewLoading(){return mast()+'<div class="loading">جارٍ تحميل القصائد…</div>'}
 function barHtml(){
@@ -1017,7 +1017,7 @@ function menuSheet(){
   '<div class="sblock"><div class="sbl">المظهر</div><div class="seg3">'+seg+'</div></div>'+
   it('sharesite','share','مشاركة الموقع','أرسل رابط ديواني لأصدقائك')+
   (canInst?it(deferredInstall?'install':'instguide','dl','تثبيت التطبيق','أضف ديواني إلى الشاشة الرئيسية'):'')+
-  (S.mode==='supa'?it('admin',S.canEdit?'out':'user',S.canEdit?'خروج المدير':'دخول المدير',S.canEdit?('مسجّل كـ'+(S.isOwner?'مالك':'مدير')):'للمالك والمديرين فقط'):'');
+  (S.mode==='supa'?it('admin',S.canEdit?'out':'user',S.canEdit?'تسجيل الخروج':'تسجيل الدخول',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'لصاحب الموقع ومن يديرونه'):'');
 }
 function sheetHtml(k){
   if(k==='install')return installSheet();
@@ -1059,7 +1059,7 @@ function viewMore(){
     sw('ms','book','نمط المخطوطات','ورق وزخارف تشبه المخطوطات القديمة',S.ms));
   var inst=installRow();
   var explore=inst?card('التطبيق',inst):'';
-  var acct=S.mode==='supa'?card('الحساب',nav('admin',S.canEdit?'out':'user',S.canEdit?'خروج المدير':'دخول المدير',S.canEdit?('مسجّل كـ'+(S.isOwner?'مالك':'مدير')):'للمالك والمديرين فقط')):'';
+  var acct=S.mode==='supa'?card('الحساب',nav('admin',S.canEdit?'out':'user',S.canEdit?'تسجيل الخروج':'تسجيل الدخول',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'لصاحب الموقع ومن يديرونه')):'';
   var adm='';
   if(canE()){
     adm=card('إدارة الديوان',
