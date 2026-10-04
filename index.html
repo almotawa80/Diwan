@@ -455,24 +455,24 @@ h3.sct .dnote{margin-inline-start:6px}
 /* شريط جانبي للشاشات العريضة */
 .sidectl,#sidehandle{display:none}
 @media (min-width:621px){
-  #bnav{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;bottom:0;inset-inline-start:0;width:224px;background:var(--surface);border-inline-end:1px solid var(--line);padding:18px 12px;z-index:60;overflow-y:auto;transform:translateX(100%);transition:transform .5s cubic-bezier(.33,.08,.2,1),box-shadow .5s,visibility 0s linear .5s;box-shadow:none;visibility:hidden}
+  #bnav{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;bottom:0;inset-inline-start:0;width:76px;align-items:stretch;background:var(--surface);border-inline-end:1px solid var(--line);padding:14px 6px;z-index:60;overflow-y:auto;overflow-x:hidden;transform:translateX(100%);transition:transform .5s cubic-bezier(.33,.08,.2,1),box-shadow .5s,visibility 0s linear .5s;box-shadow:none;visibility:hidden}
   html.side-pin #bnav,html.side-open #bnav{transform:none;visibility:visible;transition-delay:0s}
   html.side-open:not(.side-pin) #bnav{box-shadow:-10px 0 30px rgba(10,20,50,.18)}
-  #bnav button[data-nav]{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;background:none;border:0;color:var(--ink);font-size:1rem;cursor:pointer;text-align:start;width:100%;position:relative}
+  #bnav button[data-nav]{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 2px 8px;border-radius:12px;background:none;border:0;color:var(--muted);font-size:.72rem;line-height:1.2;cursor:pointer;text-align:center;width:100%;position:relative}
   #bnav button[data-nav]:hover{background:var(--tint)}
   #bnav button[aria-current="page"]{background:var(--tint);color:var(--accent);font-weight:600}
-  #bnav button[aria-current="page"]::before{content:"";position:absolute;inset-block:22%;inset-inline-start:0;width:3px;border-radius:3px;background:var(--gold)}
-  #bnav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-  .sidectl{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-  .sidectl b{font-family:var(--f-verse);font-size:1.3rem;color:var(--accent)}
-  .sidectl button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:none;border-radius:10px;padding:5px 10px;font-size:.82rem;color:var(--muted);cursor:pointer}
+  #bnav button[aria-current="page"]::before{content:"";position:absolute;inset-block:24%;inset-inline-start:-6px;width:3px;border-radius:3px;background:var(--gold)}
+  #bnav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .sidectl{display:flex;justify-content:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .sidectl b{display:none}
+  .sidectl button{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line);background:none;border-radius:10px;padding:0;font-size:0;color:var(--muted);cursor:pointer}
   .sidectl button[aria-pressed="true"]{background:var(--tint);color:var(--accent);border-color:var(--gold)}
   .sidectl svg{width:16px;height:16px}
   #sidehandle{display:grid;place-items:center;position:fixed;top:50%;inset-inline-start:0;transform:translateY(-50%);width:26px;height:64px;background:var(--surface);border:1px solid var(--line);border-inline-start:0;border-radius:0 12px 12px 0;color:var(--accent);cursor:pointer;z-index:55;padding:0;box-shadow:0 4px 14px rgba(10,20,50,.15)}
   [dir=rtl] #sidehandle,html #sidehandle{border-radius:12px 0 0 12px;border-inline-start:1px solid var(--line);border-inline-end:0}
   #sidehandle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   html.side-pin #sidehandle,html.side-open #sidehandle,#sidehandle[hidden]{display:none}
-  html.side-pin body{padding-inline-start:calc(16px + 224px)}
+  html.side-pin body{padding-inline-start:calc(16px + 76px)}
   body{transition:padding-inline-start .5s cubic-bezier(.33,.08,.2,1)}
   @media (prefers-reduced-motion:reduce){#bnav,body{transition:none!important}}
   html.side-pin .fabwrap{inset-inline-end:16px}
@@ -543,7 +543,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-t';
+var BUILD='2026.10.04-u';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1062,7 +1062,7 @@ function renderNav(){
   var cnt={d:S.data.poems.filter(function(p){return p.section==='diwan'}).length};cnt.f=S.data.poems.length-cnt.d+(S.data.bayt||[]).length;
   var items=[['home','الرئيسية','home'],['diwan','ديواني','book'],['search','بحث','search'],['fav','المفضلة','star'],['about','عن الشاعر','user']];
   var pinned=!!S.sidePin;
-  var ctl='<div class="sidectl"><b>'+esc((S.data&&S.data.settings&&S.data.settings.site)||'ديواني')+'</b><button data-act="sidepin" aria-pressed="'+pinned+'" title="'+(pinned?'إلغاء التثبيت':'تثبيت القائمة')+'"><svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/></svg>'+(pinned?'مثبّتة':'تثبيت')+'</button></div>';
+  var ctl='<div class="sidectl"><b>'+esc((S.data&&S.data.settings&&S.data.settings.site)||'ديواني')+'</b><button data-act="sidepin" aria-pressed="'+pinned+'" title="'+(pinned?'إلغاء التثبيت':'تثبيت القائمة')+'"><svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/></svg></button></div>';
   nav.innerHTML=ctl+items.map(function(i){return '<button data-act="nav" data-nav="'+i[0]+'"'+(cur===i[0]?' aria-current="page"':'')+'>'+ico(i[2])+'<span>'+i[1]+'</span></button>'}).join('');
 }
 var deferredInstall=null;
