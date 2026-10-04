@@ -18,16 +18,16 @@
 <style>
 /* Layout: a single reading column, quiet masthead, ruled poem list; verses set as two hemistichs across the page centre. */
 :root{
-  --bg:#f3f1ec; --surface:#fbfaf6; --ink:#1c2233; --muted:#5d6577; --line:#d9d5ca; --tint:#e8ebf3;
-  --accent:#233a6e; --on-accent:#ffffff; --gold:#97721d; --danger:#a13434;
+  --bg:#f0ede4; --surface:#f8f6ef; --ink:#262d3f; --muted:#586072; --line:#d8d3c6; --tint:#e5e8ef;
+  --accent:#2b4378; --on-accent:#ffffff; --gold:#84611a; --danger:#a13434;
   --f-display:'Aref Ruqaa','Amiri',serif; --f-verse:'Amiri','Traditional Arabic',serif; --f-ui:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#b6bed1; --line:#283149; --tint:#1b2440;
-  --accent:#8fa9e8; --on-accent:#0b1020; --gold:#d9b663; --danger:#ee9a9a; color-scheme:dark}}
+  --bg:#1b2230; --surface:#232b3c; --ink:#d6dae4; --muted:#a6aec1; --line:#38425c; --tint:#2b3550;
+  --accent:#9bb3ec; --on-accent:#141a2a; --gold:#d4b569; --danger:#e8a0a0; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1320; --surface:#161d2e; --ink:#e8eaf2; --muted:#b6bed1; --line:#283149; --tint:#1b2440;
-  --accent:#8fa9e8; --on-accent:#0b1020; --gold:#d9b663; --danger:#ee9a9a; color-scheme:dark}
+  --bg:#1b2230; --surface:#232b3c; --ink:#d6dae4; --muted:#a6aec1; --line:#38425c; --tint:#2b3550;
+  --accent:#9bb3ec; --on-accent:#141a2a; --gold:#d4b569; --danger:#e8a0a0; color-scheme:dark}
 html{direction:rtl}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.7;padding-inline:16px;padding-block:20px 110px}
@@ -272,8 +272,8 @@ mark{background:rgba(217,182,99,.35);color:inherit;border-radius:3px;padding:0 2
 .newbar .linkbtn{color:var(--on-accent);text-decoration:underline}.nbtn{display:flex;gap:12px}
 .rel{margin-top:22px}
 html[data-ms]{--paper:#f3e7c9}
-html[data-ms][data-theme="dark"]{--paper:#2b2517}
-@media (prefers-color-scheme: dark){html[data-ms]:not([data-theme="light"]){--paper:#2b2517}}
+html[data-ms][data-theme="dark"]{--paper:#302a1b}
+@media (prefers-color-scheme: dark){html[data-ms]:not([data-theme="light"]){--paper:#302a1b}}
 html[data-ms] .verses{position:relative;background:var(--paper);border:1px solid var(--gold);border-radius:6px;padding:30px 10px;box-shadow:inset 0 0 0 6px var(--paper),inset 0 0 0 7px var(--gold)}
 html[data-ms] .verses::before,html[data-ms] .verses::after{content:"❖";position:absolute;color:var(--gold);font-size:1rem;top:10px}
 html[data-ms] .verses::before{inset-inline-start:14px}html[data-ms] .verses::after{inset-inline-end:14px}
@@ -543,7 +543,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-v';
+var BUILD='2026.10.04-w';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
