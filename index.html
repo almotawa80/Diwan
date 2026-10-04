@@ -525,8 +525,9 @@ h3.sct .dnote{margin-inline-start:6px}
 .flc[data-pos="3"]{z-index:1;transform:translateY(44px) scale(.84);opacity:0;pointer-events:none}
 .flc[data-pos="1"],.flc[data-pos="2"],.flc[data-pos="3"]{pointer-events:none}
 .flc .flspark{position:absolute;top:14px;left:50%;transform:translateX(-50%);color:var(--gold)}
-.flc .flspark i{display:grid;place-items:center;width:30px;height:30px;background:var(--gold);transform:rotate(45deg);border-radius:3px}
-.flc .flspark b{transform:rotate(-45deg);font:400 20px/1 'Aref Ruqaa',serif;color:var(--surface);padding-top:2px}
+.flc .flspark{top:22px}
+.flc .flspark i{display:grid;place-items:center;width:38px;height:38px;background:var(--gold);transform:rotate(45deg);border-radius:4px;outline:1.5px solid var(--gold);outline-offset:4px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.flc .flspark b{transform:rotate(-45deg);font:700 28px/1 'Aref Ruqaa',serif;color:var(--surface);padding-top:3px}
 .flc .v{font-size:clamp(1.25rem,4.4vw,1.7rem);padding-block:4px}
 .flc::after{content:"";position:absolute;inset:8px;border:1px solid var(--gold);border-radius:18px;opacity:.28;pointer-events:none}
 .flwho{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;color:var(--muted);font-size:.92rem}
@@ -598,7 +599,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ad';
+var BUILD='2026.10.04-ae';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1480,11 +1481,11 @@ function drawCard(c,p,v,T){
     x.globalAlpha=.5;x.lineWidth=2;x.beginPath();x.arc(W/2-half-6,cy,5,0,Math.PI*2);x.stroke();x.beginPath();x.arc(W/2+half+6,cy,5,0,Math.PI*2);x.stroke();
     x.restore()};
   x.fillStyle=T[2];orn(168,190);
-  x.save();x.fillStyle=T[1][0];dia(W/2,168,30);x.fillStyle=T[2];dia(W/2,168,28);x.fillStyle=T[1][0];x.direction='rtl';x.textAlign='center';x.textBaseline='middle';x.font='40px "Aref Ruqaa", serif';x.fillText('د',W/2,172);x.restore();
+  x.save();x.fillStyle=T[1][0];dia(W/2,168,64);x.strokeStyle=T[2];x.lineWidth=3;x.beginPath();x.moveTo(W/2,168-58);x.lineTo(W/2+58,168);x.lineTo(W/2,168+58);x.lineTo(W/2-58,168);x.closePath();x.stroke();x.fillStyle=T[2];dia(W/2,168,46);x.fillStyle=T[1][0];x.direction='rtl';x.textAlign='center';x.textBaseline='middle';x.font='700 70px "Aref Ruqaa", serif';x.fillText('د',W/2,178);x.restore();
   x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
   var t=function(sx){return S.tash?sx:plain(sx)};
   var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
-  var top=235,bot=(shTitle||shPoet)?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
+  var top=250,bot=(shTitle||shPoet)?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
   var layout=function(){x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,WW).forEach(function(l){lines.push([l,i])})});lh=Math.round(size*1.8);total=lines.length*lh+gap};
   var wide=function(){return parts.some(function(sx){return x.measureText(sx).width>WW})};
   layout();while((total>avail||wide())&&size>28){size-=2;layout()}
