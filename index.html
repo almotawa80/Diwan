@@ -519,7 +519,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-n';
+var BUILD='2026.10.04-o';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1017,6 +1017,15 @@ function viewTools(){
   '<div class="box"><h3>استعادة نسخة</h3><p class="hint">الصق النص المحفوظ هنا أو اختر ملف نسخة احتياطية. تُدمج القصائد مع الموجودة ولا يُحذف شيء.</p><textarea id="b-in" rows="4" dir="ltr" style="font-family:monospace;font-size:.8rem;line-height:1.5" placeholder="الصق النسخة هنا"></textarea><div class="acts-row" style="border:0;padding:0"><button class="btn" data-act="restore">دمج النسخة</button><label class="btn file">اختيار ملف<input type="file" accept=".json,.txt,application/json,text/plain" id="b-file"></label></div></div>';
 }
 function ico(n){var P={out:'<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',book:'<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5v-17M20 19v3H6.5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/>',star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.9z"/>',more:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',pen:'<path d="M4 20l1-4L17 4l3 3L8 19z"/>',up:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',share:'<circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><path d="M8.5 13.4l7 4.2M15.5 6.4l-7 4.2"/>',print:'<path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/>',wave:'<path d="M3 12h3l2-6 3 12 3-9 2 3h5"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',file:'<path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 13h7M9 17h7"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',dl:'<path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5M5 19h14"/>',type:'<path d="M5 19L12 4l7 15M8.5 14h7"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14a6 6 0 0 1 3 6"/>'};return '<svg viewBox="0 0 24 24" aria-hidden="true">'+P[n]+'</svg>'}
+var sideT=0;
+function sideLater(ms){clearTimeout(sideT);sideT=setTimeout(function(){if(S.sideOpen&&!S.sidePin){S.sideOpen=false;applySide()}},ms)}
+function sideHover(){
+  var nv=$('#bnav'),hd=$('#sidehandle'),fine=window.matchMedia&&matchMedia('(hover:hover)').matches;
+  if(!fine||!nv||!hd)return;
+  hd.addEventListener('mouseenter',function(){if(!S.sidePin){S.sideOpen=true;applySide();sideLater(1500)}});
+  nv.addEventListener('mouseenter',function(){clearTimeout(sideT)});
+  nv.addEventListener('mouseleave',function(){if(S.sideOpen&&!S.sidePin)sideLater(450)});
+}
 function applySide(){
   var d=document.documentElement;
   if(S.sidePin===undefined){var v=LS.get('diwan-side',null);S.sidePin=v===null?window.innerWidth>=1100:v==='pin'}
@@ -1544,7 +1553,7 @@ document.addEventListener('click',function(e){
     document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});if(S.view==='more')render(true);toast(dark?'الوضع النهاري':'الوضع الليلي')
   }
   else if(a==='sidetoggle'){S.sideOpen=!S.sideOpen;applySide()}
-  else if(a==='sidepin'){S.sidePin=!S.sidePin;S.sideOpen=false;LS.set('diwan-side',S.sidePin?'pin':'free');renderNav()}
+  else if(a==='sidepin'){S.sidePin=!S.sidePin;S.sideOpen=!S.sidePin;LS.set('diwan-side',S.sidePin?'pin':'free');renderNav();if(S.sideOpen)sideLater(1500)}
   else if(a==='account'){if(signedIn()){S.view='account';render()}}
   else if(a==='admin'){if(S.mode!=='supa')return;if(signedIn())logout();else{S.view='login';render()}}
   else if(a==='logout'){logout()}
@@ -1721,8 +1730,9 @@ document.addEventListener('touchend',function(e){
   var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;
   if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;setTimeout(function(){swiped=false},400);readStep(dx>0?1:-1)}
 },{passive:true});
-document.addEventListener('click',function(e){if(S.sideOpen&&!(e.target.closest&&e.target.closest('#bnav,#sidehandle'))){S.sideOpen=false;applySide()}});
+document.addEventListener('click',function(e){if(S.sideOpen&&document.contains(e.target)&&!(e.target.closest&&e.target.closest('#bnav,#sidehandle'))){S.sideOpen=false;applySide()}});
 window.addEventListener('resize',function(){applySide()});
+sideHover();
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.sideOpen){S.sideOpen=false;applySide()}
   if(S.view!=='read')return;
   if(e.key==='ArrowLeft')readStep(1);
