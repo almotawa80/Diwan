@@ -509,7 +509,7 @@ h3.sct .dnote{margin-inline-start:6px}
 .btn.ic{background:var(--surface);border-color:var(--line);color:var(--accent)}
 @media (min-width:621px){.shbox{width:min(94vw,460px)}.shbox canvas{max-height:min(56dvh,600px)}}
 
-/* ومضة: حزمة بطاقات */
+/* شوارد: حزمة بطاقات */
 #flash{position:fixed;inset:0;z-index:85;display:grid;place-items:center;padding:16px;overflow:hidden}
 .flbd{position:absolute;inset:0;background:rgba(10,14,26,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fin .3s ease}
 .flwrap{position:relative;width:min(92vw,440px);display:grid;gap:16px;justify-items:stretch}
@@ -591,7 +591,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-z';
+var BUILD='2026.10.04-aa';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1142,10 +1142,10 @@ function openFlash(){
   FL.q=[first];FL.hist=[];FL.busy=false;S.flash=first;
   var o=$('#flash');if(!o){o=document.createElement('div');o.id='flash';document.body.appendChild(o)}
   var hint=LS.get('diwan-flh',0)<3;
-  o.innerHTML='<div class="flbd" data-act="flclose"></div><div class="flwrap" role="dialog" aria-modal="true" aria-label="ومضة"><button class="icon-btn sq flx" data-act="flclose" aria-label="إغلاق">✕</button>'+
+  o.innerHTML='<div class="flbd" data-act="flclose"></div><div class="flwrap" role="dialog" aria-modal="true" aria-label="شوارد"><button class="icon-btn sq flx" data-act="flclose" aria-label="إغلاق">✕</button>'+
   '<div class="fldeck" id="fldeck"></div>'+
   '<p class="flhint'+(hint?'':' off')+'" id="flhint">اسحب البطاقة يمينًا أو يسارًا</p>'+
-  '<div class="flbar"><button class="btn ic" data-act="flback" aria-label="البيت السابق" title="السابق" id="flback" disabled>'+ico('undo')+'</button><button class="btn primary" data-act="flnext">ومضة أخرى</button><button class="btn ic" data-act="flshare" aria-label="مشاركة كصورة" title="مشاركة كصورة">'+ico('share')+'</button></div></div>';
+  '<div class="flbar"><button class="btn ic" data-act="flback" aria-label="البيت السابق" title="السابق" id="flback" disabled>'+ico('undo')+'</button><button class="btn primary" data-act="flnext">شاردة أخرى</button><button class="btn ic" data-act="flshare" aria-label="مشاركة كصورة" title="مشاركة كصورة">'+ico('share')+'</button></div></div>';
   var dk=$('#fldeck');
   dk.appendChild(flCard(first,0));
   for(var i=1;i<3;i++){var e=flashPick();if(!e)break;FL.q.push(e);dk.insertBefore(flCard(e,i),dk.firstChild)}
@@ -1224,7 +1224,7 @@ function renderNav(){
   var nav=$('#bnav');nav.hidden=(S.view==='read');var sh=$('#sidehandle');if(sh)sh.hidden=(S.view==='read');applySide();
   var cur=S.view==='list'?S.tab:(S.view==='poetpage'?'about':'');
   var cnt={d:S.data.poems.filter(function(p){return p.section==='diwan'}).length};cnt.f=S.data.poems.length-cnt.d+(S.data.bayt||[]).length;
-  var items=[['home','الرئيسية','home'],['diwan','ديواني','book'],['flash','ومضة','spark'],['fav','المفضلة','star'],['about','عن الشاعر','user']];
+  var items=[['home','الرئيسية','home'],['diwan','ديواني','book'],['flash','شوارد','spark'],['fav','المفضلة','star'],['about','عن الشاعر','user']];
   var pinned=!!S.sidePin;
   var ctl='<div class="sidectl"><b>'+esc((S.data&&S.data.settings&&S.data.settings.site)||'ديواني')+'</b><button data-act="sidepin" aria-pressed="'+pinned+'" title="'+(pinned?'إلغاء التثبيت':'تثبيت القائمة')+'"><svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/></svg></button></div>';
   nav.innerHTML=items.map(function(i){return '<button data-act="nav" data-nav="'+i[0]+'"'+(cur===i[0]?' aria-current="page"':'')+'>'+ico(i[2])+'<span>'+i[1]+'</span></button>'}).join('');
