@@ -525,9 +525,11 @@ h3.sct .dnote{margin-inline-start:6px}
 .flc[data-pos="3"]{z-index:1;transform:translateY(44px) scale(.84);opacity:0;pointer-events:none}
 .flc[data-pos="1"],.flc[data-pos="2"],.flc[data-pos="3"]{pointer-events:none}
 .flc .flspark{position:absolute;top:14px;left:50%;transform:translateX(-50%);color:var(--gold)}
-.flc .flspark{top:22px}
-.flc .flspark i{display:grid;place-items:center;width:38px;height:38px;background:var(--gold);transform:rotate(45deg);border-radius:4px;outline:1.5px solid var(--gold);outline-offset:4px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-.flc .flspark b{transform:rotate(-45deg);font:700 28px/1 'Aref Ruqaa',serif;color:var(--surface);padding-top:3px}
+.flc .flspark{top:18px;display:flex;align-items:center;gap:10px}
+.flc .flspark::before,.flc .flspark::after{content:"";width:46px;height:1px;background:linear-gradient(to var(--d,left),var(--gold),transparent);opacity:.75}
+.flc .flspark::after{--d:right}
+.flc .flspark i{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--gold) 70%,#fff),var(--gold) 70%);box-shadow:0 0 0 3px var(--surface),0 0 0 4.5px var(--gold),0 3px 10px rgba(0,0,0,.2)}
+.flc .flspark svg{height:32px;width:auto;fill:#2a2110;margin-top:-1px}
 .flc .v{font-size:clamp(1.25rem,4.4vw,1.7rem);padding-block:4px}
 .flc::after{content:"";position:absolute;inset:8px;border:1px solid var(--gold);border-radius:18px;opacity:.28;pointer-events:none}
 .flwho{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;color:var(--muted);font-size:.92rem}
@@ -599,7 +601,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ae';
+var BUILD='2026.10.04-ag';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1158,7 +1160,7 @@ function flCard(e,pos){
   var p=e[0],v=e[1],t=function(x){return esc(S.tash?x:plain(x))};
   var src=p.kind==='bayt'?(p.source||''):p.title,who=poetLabel(p);
   var d=document.createElement('div');d.className='flc';d.dataset.pos=pos;d._e=e;
-  d.innerHTML=flHeartBtn(e)+'<div class="flspark" aria-hidden="true"><i><b>د</b></i></div>'+
+  d.innerHTML=flHeartBtn(e)+'<div class="flspark" aria-hidden="true"><i><svg viewBox="-9 -435 359 436" aria-hidden="true"><path transform="scale(1,-1)" d="'+DAL+'"/></svg></i></div>'+
   '<div class="v'+(v[1]?'':' one')+'"><span class="s">'+t(v[0])+'</span>'+(v[1]?'<span class="j">'+t(v[1])+'</span>':'')+'</div>'+
   '<div class="flwho">'+(src?(p.kind==='bayt'?'<span>'+esc(src)+'</span>':'<button class="linkbtn" data-act="flopen" data-id="'+p.id+'">'+esc(src)+'</button>'):'')+(who?'<span class="flpoet">'+esc(who)+'</span>':'')+'</div>';
   return d;
@@ -1464,6 +1466,7 @@ try{var shs=parseInt(localStorage.getItem('diwan-shth'));if(shs>=0&&shs<SH_THEME
 var shScale=1,shTitle=true,shPoet=true;
 try{var _o=localStorage.getItem('diwan-shinfo'),_t=localStorage.getItem('diwan-shti'),_p=localStorage.getItem('diwan-shpo');if(_t===null&&_o==='0')_t='0';if(_p===null&&_o==='0')_p='0';if(_t==='0')shTitle=false;if(_p==='0')shPoet=false}catch(e){}
 try{var shz=parseFloat(localStorage.getItem('diwan-shsz'));if(shz>=0.6&&shz<=1.6)shScale=shz}catch(e){}
+var DAL='M301 428 227 319Q226 318 225 314Q224 311 225 309Q231 294 236 278Q241 262 246 245Q248 235 250 224Q253 214 254 203Q215 186 168 173Q120 160 73 152Q67 149 64 146L-7 18Q-11 10 -6 4Q-1 -2 6 0Q31 7 56 13Q81 19 109 26Q173 42 208 61Q250 83 284 122Q304 146 320 172Q335 199 342 232Q346 252 348 270Q350 288 350 304Q350 332 346 358Q341 383 333 400L321 427Q318 434 312 434Q305 435 301 428Z';
 function drawCard(c,p,v,T){
   var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
   var W=1080,H=1350;c.width=W;c.height=H;var x=c.getContext('2d');
@@ -1481,11 +1484,15 @@ function drawCard(c,p,v,T){
     x.globalAlpha=.5;x.lineWidth=2;x.beginPath();x.arc(W/2-half-6,cy,5,0,Math.PI*2);x.stroke();x.beginPath();x.arc(W/2+half+6,cy,5,0,Math.PI*2);x.stroke();
     x.restore()};
   x.fillStyle=T[2];orn(168,190);
-  x.save();x.fillStyle=T[1][0];dia(W/2,168,64);x.strokeStyle=T[2];x.lineWidth=3;x.beginPath();x.moveTo(W/2,168-58);x.lineTo(W/2+58,168);x.lineTo(W/2,168+58);x.lineTo(W/2-58,168);x.closePath();x.stroke();x.fillStyle=T[2];dia(W/2,168,46);x.fillStyle=T[1][0];x.direction='rtl';x.textAlign='center';x.textBaseline='middle';x.font='700 70px "Aref Ruqaa", serif';x.fillText('د',W/2,178);x.restore();
+  x.save();var cy=170,R=58,cg=x.createRadialGradient(W/2-18,cy-20,6,W/2,cy,R);cg.addColorStop(0,'#f1dc9c');cg.addColorStop(1,T[2]);
+  x.fillStyle=T[1][0];x.beginPath();x.arc(W/2,cy,R+14,0,7);x.fill();
+  x.strokeStyle=T[2];x.lineWidth=2.5;x.beginPath();x.arc(W/2,cy,R+10,0,7);x.stroke();
+  x.fillStyle=cg;x.beginPath();x.arc(W/2,cy,R,0,7);x.fill();
+  x.fillStyle=T[1][0];x.translate(W/2,cy+1);var k=.2;x.scale(k,-k);x.translate(-170,-217);x.fill(new Path2D(DAL));x.restore();
   x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
   var t=function(sx){return S.tash?sx:plain(sx)};
   var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
-  var top=250,bot=(shTitle||shPoet)?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
+  var top=265,bot=(shTitle||shPoet)?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
   var layout=function(){x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,WW).forEach(function(l){lines.push([l,i])})});lh=Math.round(size*1.8);total=lines.length*lh+gap};
   var wide=function(){return parts.some(function(sx){return x.measureText(sx).width>WW})};
   layout();while((total>avail||wide())&&size>28){size-=2;layout()}
