@@ -455,8 +455,8 @@ h3.sct .dnote{margin-inline-start:6px}
 /* شريط جانبي للشاشات العريضة */
 .sidectl,#sidehandle{display:none}
 @media (min-width:621px){
-  #bnav{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;bottom:0;inset-inline-start:0;width:224px;background:var(--surface);border-inline-end:1px solid var(--line);padding:18px 12px;z-index:60;overflow-y:auto;transform:translateX(100%);transition:transform .22s ease,box-shadow .22s;box-shadow:none;visibility:hidden}
-  html.side-pin #bnav,html.side-open #bnav{transform:none;visibility:visible}
+  #bnav{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;bottom:0;inset-inline-start:0;width:224px;background:var(--surface);border-inline-end:1px solid var(--line);padding:18px 12px;z-index:60;overflow-y:auto;transform:translateX(100%);transition:transform .5s cubic-bezier(.33,.08,.2,1),box-shadow .5s,visibility 0s linear .5s;box-shadow:none;visibility:hidden}
+  html.side-pin #bnav,html.side-open #bnav{transform:none;visibility:visible;transition-delay:0s}
   html.side-open:not(.side-pin) #bnav{box-shadow:-10px 0 30px rgba(10,20,50,.18)}
   #bnav button[data-nav]{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;background:none;border:0;color:var(--ink);font-size:1rem;cursor:pointer;text-align:start;width:100%;position:relative}
   #bnav button[data-nav]:hover{background:var(--tint)}
@@ -473,6 +473,8 @@ h3.sct .dnote{margin-inline-start:6px}
   #sidehandle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   html.side-pin #sidehandle,html.side-open #sidehandle,#sidehandle[hidden]{display:none}
   html.side-pin body{padding-inline-start:calc(16px + 224px)}
+  body{transition:padding-inline-start .5s cubic-bezier(.33,.08,.2,1)}
+  @media (prefers-reduced-motion:reduce){#bnav,body{transition:none!important}}
   html.side-pin .fabwrap{inset-inline-end:16px}
 }
 
@@ -519,7 +521,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-o';
+var BUILD='2026.10.04-p';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1024,7 +1026,7 @@ function sideHover(){
   if(!fine||!nv||!hd)return;
   hd.addEventListener('mouseenter',function(){if(!S.sidePin){S.sideOpen=true;applySide();sideLater(1500)}});
   nv.addEventListener('mouseenter',function(){clearTimeout(sideT)});
-  nv.addEventListener('mouseleave',function(){if(S.sideOpen&&!S.sidePin)sideLater(450)});
+  nv.addEventListener('mouseleave',function(){if(S.sideOpen&&!S.sidePin)sideLater(700)});
 }
 function applySide(){
   var d=document.documentElement;
