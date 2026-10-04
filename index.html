@@ -601,7 +601,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ai';
+var BUILD='2026.10.04-aj';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1109,7 +1109,7 @@ function impHtml(p,i){
   '<label class="f">طريقة التقسيم<select class="i-mode">'+modeOpts(p.mode||'auto')+'</select></label><label class="f">الأبيات<textarea class="i-verses" rows="6" dir="rtl">'+esc(verseText(p.verses))+'</textarea></label></div>';
 }
 function viewImport(){
-  return mast()+'<button class="back" data-act="home">→ إلغاء</button><h2 class="h">معاينة الاستيراد</h2>'+
+  return mast()+'<button class="back" data-act="nav" data-nav="more">→ إلغاء</button><h2 class="h">معاينة الاستيراد</h2>'+
   (S.imp.length?'<p class="hint" style="margin-bottom:14px">راجع التقسيم قبل الحفظ، وصحح أي بيت أو عنوان.</p><div class="bulk"><label class="f">القسم للكل<select id="bulk-sec"><option value="diwan">ديواني</option><option value="fav">المفضلة</option></select></label><label class="f">الشاعر للكل<input type="text" id="bulk-poet" placeholder="'+esc(S.data.settings.author||'اسم الشاعر')+'"></label><button class="btn" data-act="impall">تطبيق على الكل</button></div>'+S.imp.map(impHtml).join('')+'<button class="btn primary" data-act="impsave">حفظ '+num(S.imp.length)+' قصيدة</button>':'<div class="empty">'+esc(S.msg||'لم تُستخرج قصائد من الملف.')+'</div>');
 }
 function viewTools(){
@@ -1638,7 +1638,7 @@ function viewStats(){
   var likesTop='';
   if(S.social){var ids=Object.keys(S.likes).filter(function(k){return S.likes[k]>0}).sort(function(a,b){return S.likes[b]-S.likes[a]}).slice(0,5);
     if(ids.length){var lm={};ids.forEach(function(id){var q=S.data.poems.find(function(x){return x.id===id});if(q)lm[q.title]=S.likes[id]});likesTop='<div class="box"><h3>الأكثر إعجابًا</h3>'+barsHtml(lm,5)+'</div>'}}
-  return mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">إحصاءات الديوان</h2>'+
+  return mast()+'<button class="back" data-act="nav" data-nav="more">→ الإعدادات</button><h2 class="h">إحصاءات الديوان</h2>'+
   '<div class="kpis"><div><b>'+num(so.poems)+'</b><span>قصائد ديواني</span></div><div><b>'+num(so.verses)+'</b><span>أبيات ديواني</span></div><div><b>'+num(sf.poems)+'</b><span>قصائد مفضلة</span></div><div><b>'+num(sf.verses)+'</b><span>أبيات مفضلة</span></div></div>'+
   (longest?'<p class="hint">أطول قصيدة: «'+esc(longest.title)+'» ('+num(longest.verses.length)+' بيتًا)</p>':'')+
   '<div class="box"><h3>البحور الأكثر استعمالًا</h3>'+barsHtml(bahr)+'</div>'+
@@ -1664,7 +1664,7 @@ function bookList(){
 }
 function viewBook(){
   var l=bookList();
-  return mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تصدير الديوان</h2>'+
+  return mast()+'<button class="back" data-act="nav" data-nav="more">→ الإعدادات</button><h2 class="h">تصدير الديوان</h2>'+
   '<div class="box"><label class="chk"><input type="checkbox" data-act="bookall"'+(S.bookAll?' checked':'')+'> تضمين قصائد المفضلة أيضًا</label>'+
   '<p class="hint">'+num(l.length)+' قصيدة بترتيب الإضافة من الأقدم.</p>'+
   '<div class="acts"><button class="btn primary" data-act="bookprint">طباعة / حفظ PDF</button><button class="btn" data-act="bookword">تنزيل ملف Word</button></div>'+
@@ -1708,7 +1708,7 @@ function loadComments(){
   });
 }
 function viewPending(){
-  return mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تعليقات بانتظار المراجعة</h2>'+
+  return mast()+'<button class="back" data-act="nav" data-nav="more">→ الإعدادات</button><h2 class="h">تعليقات بانتظار المراجعة</h2>'+
   (S.pending.length?'<div class="fvlist">'+S.pending.map(function(c){
     var p=S.data.poems.find(function(x){return x.id===c.poem_id});
     return '<div class="cmt pend"><div class="cmh"><b>'+esc(c.name||'زائر')+'</b><button class="linkbtn" data-act="open" data-id="'+esc(c.poem_id)+'">'+esc(p?p.title:'قصيدة')+'</button></div><p>'+esc(c.body).replace(/\n/g,'<br>')+'</p><div class="cma"><button class="linkbtn" data-act="cmok" data-id="'+c.id+'" data-from="pend">نشر</button><button class="linkbtn" data-act="cmdel" data-id="'+c.id+'" data-from="pend">حذف</button></div></div>';
