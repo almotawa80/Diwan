@@ -481,7 +481,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-c';
+var BUILD='2026.10.04-d';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1361,7 +1361,7 @@ document.addEventListener('click',function(e){
   var fw=document.querySelector('.fabwrap');if(fw&&!e.target.closest('.fabwrap'))fw.classList.remove('open');
   var b=e.target.closest('[data-act]');if(!b)return;
   var a=b.dataset.act,p;
-  if(b.closest('#sheet')&&['sheet','sheetclose','shfont','shtash','shrate'].indexOf(a)<0)closeSheet();
+  if(b.closest('#sheet')&&['sheet','sheetclose','shfont','shtash','shrate','themeset'].indexOf(a)<0)closeSheet();
   if(a==='home'){S.confirm=false;if(S.pushed&&/^#\/p\//.test(location.hash)){S.pushed=false;history.back();return}clearHash();S.view='list';render()}
   else if(a==='brand'){S.view='list';S.tab='home';S.poet='';S.q='';S.bahr='';S.tag='';render()}
   else if(a==='nav'){
@@ -1416,7 +1416,7 @@ document.addEventListener('click',function(e){
   else if(a==='themeset'){
     var r2=document.documentElement,v=b.dataset.v;
     if(v==='auto'){delete r2.dataset.theme;try{localStorage.removeItem(THEME)}catch(x){}}else{r2.dataset.theme=v;try{localStorage.setItem(THEME,v)}catch(x){}}
-    document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});render(true)
+    document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});render(true);refreshSheet()
   }
   else if(a==='theme'){
     var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
