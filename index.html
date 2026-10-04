@@ -104,7 +104,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 .votd-foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.9rem}
 .linkbtn{background:none;border:0;color:var(--accent);cursor:pointer;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
 .fabwrap{position:fixed;inset-inline-end:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:5}
-.fab{border:0;border-radius:999px;background:var(--accent);color:var(--on-accent);padding:13px 22px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:1rem}
+.fab{border:0;border-radius:50%;width:48px;height:48px;padding:0;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);font-weight:400;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:1.9rem;line-height:1}
 .fab-menu{display:none;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 8px 28px rgba(0,0,0,.2)}
 .fabwrap.open .fab-menu{display:flex}
 .fab-menu .btn{justify-content:flex-start;border-color:transparent;color:var(--ink);padding:10px 14px;width:100%}
@@ -158,7 +158,7 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
   body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   #bnav button{position:relative;background:none;border:0;display:grid;justify-items:center;gap:2px;padding:6px 0 5px;border-radius:14px;color:var(--muted);font-size:.74rem;cursor:pointer;min-width:0;transition:background .2s,color .2s}
   #bnav button[aria-current="page"]{color:var(--accent);font-weight:600;background:var(--tint)}
-  #bnav button[aria-current="page"]::before{content:"";position:absolute;top:-8px;inset-inline:32%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+  #bnav button[aria-current="page"]::before{display:none}
   #bnav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   #bnav button[data-nav="flash"]{margin-top:-28px;background:none;color:var(--accent);font-weight:600}
   #bnav button[data-nav="flash"]::before{display:none}
@@ -174,9 +174,9 @@ h2.h{font-family:var(--f-display);font-size:1.9rem;color:var(--accent);margin:8p
 
 /* ---- v2: share, theme icon, motion ---- */
 .vw{position:relative;padding-inline:34px}
-.shv{position:absolute;inset-inline-end:0;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:0;background:none;color:var(--muted);opacity:.4;cursor:pointer;transition:opacity .2s,background .2s,color .2s}
-.vw:hover .shv,.shv:focus-visible{opacity:1}.shv:hover{background:var(--tint);color:var(--accent)}
-@media (hover:none){.shv{opacity:.55}}
+.shv{position:absolute;inset-inline-end:0;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:0;background:none;color:var(--muted);opacity:0;pointer-events:none;cursor:pointer;transition:opacity .2s,background .2s,color .2s}
+.vw:hover .shv,.vw.sel .shv,.shv:focus-visible{opacity:1;pointer-events:auto}.shv:hover{background:var(--tint);color:var(--accent)}
+@media (hover:none){.vw.sel .shv{background:var(--tint);color:var(--accent)}}
 .tico{display:inline-grid;place-items:center;line-height:1;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
 .sq:hover .tico{transform:rotate(25deg) scale(1.12)}
 .tico.sun{animation:tspin .6s ease}.tico.moon{animation:tpop .5s ease}
@@ -327,7 +327,7 @@ table.bv{width:100%;border-collapse:collapse;margin-top:8px}table.bv td{width:50
 .blogo{width:34px;height:34px;border-radius:9px;vertical-align:middle;margin-inline-end:10px;margin-top:-6px;box-shadow:0 2px 8px rgba(10,20,50,.25)}
 
 /* settings v2 */
-.sct{font:600 .8rem var(--f-ui);color:var(--gold);letter-spacing:.05em;margin:22px 4px 8px}
+.sct{font:700 .92rem var(--f-ui);color:var(--gold);letter-spacing:.02em;margin:24px 4px 8px}
 .scard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .srow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);text-align:start;cursor:pointer;font-family:var(--f-ui);position:relative;border-radius:0}
 .scard>:last-child{border-bottom:0}
@@ -528,6 +528,24 @@ html[dir=rtl] .flspark,.flspark{inset-inline-start:auto;left:50%;transform:trans
 .flacts .btn.ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 @media print{#flash{display:none!important}}
 @media (prefers-reduced-motion:reduce){.flbox.flin{animation:none}}
+
+/* رأس الرئيسية والتفاصيل */
+.hero{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;margin:6px 0 10px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,var(--tint),var(--surface));text-align:start;cursor:pointer;color:var(--ink)}
+.hero:hover{border-color:var(--gold)}
+.avatar.sm{width:52px;height:52px;font-size:1.6rem;border-width:2px;flex:none}
+.avatar.sm.ph{width:52px;height:52px}
+.hmeta{display:grid;gap:1px;min-width:0;flex:1}
+.hmeta b{font-family:var(--f-display);font-size:1.35rem;font-weight:400;color:var(--accent);line-height:1.4}
+.hmeta span{color:var(--muted);font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hmeta small{color:var(--gold);font-weight:600;font-size:.82rem}
+.hero .chev{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pdet{margin:0 0 6px}
+.pdet summary{cursor:pointer;color:var(--accent);font-size:.9rem;list-style:none;display:inline-flex;align-items:center;gap:6px;padding:2px 0}
+.pdet summary::-webkit-details-marker{display:none}
+.pdet summary::after{content:"▾";font-size:.8rem;transition:transform .2s}
+.pdet[open] summary::after{transform:rotate(180deg)}
+.pdet .pmeta{margin-top:4px}
+@media print{.hero{display:none!important}.pdet{display:block}.pdet summary{display:none}}
 </style>
 </head>
 <body>
@@ -563,7 +581,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-x';
+var BUILD='2026.10.04-y';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -931,6 +949,12 @@ function draftsHtml(){
   ensureArrs();if(!canE()||!S.data.drafts.length)return '';
   return '<h3 class="sct">مسوداتي <small class="dnote">لا يراها غيرك</small></h3><ul class="list">'+S.data.drafts.slice().sort(function(a,b){return (b.created||0)-(a.created||0)}).map(rowHtml).join('')+'</ul>';
 }
+function heroHtml(){
+  var st=S.data.settings,sx=statsOf(S.data.poems.filter(function(p){return !p.draft}));
+  var tag=(st.bio||'').split(/[\n.،؛]/)[0].trim();if(tag.length>70)tag=tag.slice(0,68).trim()+'…';
+  var cnt=sx.poems?(num(sx.poems)+' قصيدة'+(sx.verses?' · '+num(sx.verses)+' بيتًا':'')):'';
+  return '<button class="hero" data-act="nav" data-nav="about"><span class="avatar sm'+(st.photo?' ph':'')+'" aria-hidden="true">'+photoPv(st)+'</span><span class="hmeta"><b>'+esc(st.author||st.site)+'</b><span>'+esc(tag||'قصائد وأبيات')+'</span>'+(cnt?'<small>'+cnt+'</small>':'')+'</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>';
+}
 function homeHtml(){
   if(!S.data.poems.length)return draftsHtml()+listHtml();
   var all=S.data.poems.slice().sort(function(a,b){return (b.created||0)-(a.created||0)});
@@ -969,11 +993,11 @@ function viewList(){
   (S.err?'<div class="warn">تعذر تحميل القصائد. تحقق من الاتصال بالإنترنت وأعد فتح الصفحة.</div>':'')+
   (S.mode==='local'?'<div class="warn">'+(storageOk?'الموقع غير مرتبط بقاعدة بيانات بعد (راجع ملف الإعداد)، فتُحفظ التعديلات في هذا المتصفح فقط.':'تعذر الحفظ في هذا المتصفح، فلن تبقى التعديلات بعد إغلاق الصفحة.')+'</div>':'');
   var body;
-  if(S.tab==='home')body='<p class="sub">'+num(d)+(f?' في ديواني · '+num(f)+' في المفضلة':' قصيدة')+(S.canEdit&&!S.isOwner?' · وضع المدير':'')+'</p>'+homeHtml();
+  if(S.tab==='home')body=heroHtml()+homeHtml();
   else if(S.tab==='fav')body=favTabHtml();
   else body=barHtml()+chipsHtml()+'<div id="listbox">'+listHtml()+'</div>';
   return mast()+warn+body+
-  (canE()?'<div class="fabwrap"><div class="fab-menu"><button class="btn" data-act="add">✎ كتابة قصيدة</button><label class="btn file">⇪ رفع ملف Word<input type="file" accept=".docx" data-file="1" id="f-main"></label></div><button class="fab" data-act="fab" aria-label="إضافة">+ إضافة</button></div>':'');
+  (canE()?'<div class="fabwrap"><div class="fab-menu"><button class="btn" data-act="add">✎ كتابة قصيدة</button><label class="btn file">⇪ رفع ملف Word<input type="file" accept=".docx" data-file="1" id="f-main"></label></div><button class="fab" data-act="fab" aria-label="إضافة" title="إضافة">+</button></div>':'');
 }
 function viewPoem(){
   var p=findP(S.cur);if(!p){S.view='list';return viewList()}
@@ -982,7 +1006,8 @@ function viewPoem(){
   GL=parseGloss(p.gloss);FVP=p.id;
   return mast()+'<button class="back" data-act="home">→ العودة إلى القائمة</button>'+
   '<h1 class="ptitle">'+esc(p.title)+(p.sample?' <span class="badge">مثال</span>':'')+(p.draft?' <span class="badge">مسودة</span>':'')+'</h1>'+
-  '<p class="pmeta">'+meta.map(function(m){return '<span>'+m[0]+': <b>'+esc(m[1])+'</b></span>'}).join('')+'<span>'+num(p.verses.length)+' بيتًا</span></p>'+
+  '<p class="pmeta">'+(poetLabel(p)?'<span>'+esc(poetLabel(p))+'</span>':'')+'<span>'+num(p.verses.length)+' بيتًا</span></p>'+
+  (meta.filter(function(m){return m[0]!=='الشاعر'}).length?'<details class="pdet"><summary>تفاصيل القصيدة</summary><p class="pmeta">'+meta.filter(function(m){return m[0]!=='الشاعر'}).map(function(m){return '<span>'+m[0]+': <b>'+esc(m[1])+'</b></span>'}).join('')+'</p></details>':'')+
   ((p.tags||[]).length?'<div class="ptags">'+p.tags.map(function(t){return '<button class="tg" data-act="tagopen" data-tag="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>':'')+
   '<div class="tools-row ptools" style="margin-top:8px">'+'<button class="icon-btn sqb" data-act="readopen" aria-label="وضع القراءة" title="وضع القراءة">'+ico('book')+'</button><button class="icon-btn sqb" data-act="sheet" data-k="view" aria-label="الخط والحجم والتشكيل" title="الخط والحجم والتشكيل"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19L9 5l6 14M5.2 14h7.6M17 19l2.5-6 2.5 6M17.8 17h3.4"/></svg></button><button class="icon-btn sqb" data-act="sheet" data-k="more" aria-label="المزيد" title="المزيد"><svg class="dots" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg></button></div><div class="orn"><i></i></div>'+(GL.length?'<p class="hint gh">الكلمات التي تحتها نقاط لها معنى، اضغط عليها.</p>':'')+'<div class="verses" style="--fs:'+S.fs+'">'+versesHtml(p.verses,!S.tash,true)+'</div>'+
   notesHtml(p)+(p.draft?'<p class="hint dnote">هذه مسودة، لا يراها أحد غيرك حتى تنشرها.</p>':socialHtml(p))+
@@ -1127,14 +1152,22 @@ function installRow(){
 }
 var FITC={k:'',v:1.6};
 /* أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ على هذه الشاشة */
+function applyFit(){
+  if(S.view!=='poem')return;
+  var root=$('.verses');if(!root)return;
+  var c=fitCap(),eff=Math.min(S.fs,c);
+  root.style.setProperty('--fs',eff);
+}
+window.addEventListener('resize',function(){clearTimeout(window.__fitT);window.__fitT=setTimeout(function(){if(S.view==='poem'){FITC={k:'',v:1.6};applyFit()}},150)});
+try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){FITC={k:'',v:1.6};applyFit()})}catch(e){}
 function fitCap(){
   var root=$('.verses');if(!root||S.view!=='poem')return 1.6;
   var key=[S.cur,S.fi,S.tash,window.innerWidth].join('|');
   if(FITC.k===key)return FITC.v;
   var els=root.querySelectorAll('.v:not(.one) .s,.v:not(.one) .j'),old=root.style.getPropertyValue('--fs'),cap=1.6;
   if(els.length){
-    cap=0.8;
-    for(var n=8;n<=16;n++){
+    cap=0.6;
+    for(var n=6;n<=16;n++){
       var s=n/10,bad=false;root.style.setProperty('--fs',s);
       for(var i=0;i<els.length;i++){var cs=getComputedStyle(els[i]),fs=parseFloat(cs.fontSize),lh=parseFloat(cs.lineHeight)||fs*1.9;if(els[i].getBoundingClientRect().height>lh*1.4){bad=true;break}}
       if(bad)break;cap=s;
@@ -1274,7 +1307,7 @@ function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'
 function render(keep){
   if(!keep&&curKey)SCR[curKey]=window.scrollY;
   var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():S.view==='account'?viewAccount():viewTools();
-  hideTip();if(S.view!=='poem'&&SHK&&SHK!=='install'&&SHK!=='menu')closeSheet();var ap=$('#app');ap.innerHTML=h;renderNav();
+  hideTip();if(S.view!=='poem'&&SHK&&SHK!=='install'&&SHK!=='menu')closeSheet();var ap=$('#app');ap.innerHTML=h;renderNav();applyFit();
   if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   curKey=viewKey();
   if(S.view==='poem')TS[S.tab]=S.cur;else if(S.view==='list')TS[S.tab]=null;
@@ -1569,6 +1602,9 @@ document.addEventListener('click',function(e){
   var gw=e.target.closest&&e.target.closest('.gw');
   if(gw){e.stopPropagation();showTip(gw);return}
   if(!e.target.closest('#gtip'))hideTip();
+  var vwEl=e.target.closest&&e.target.closest('.vw');
+  if(vwEl&&!e.target.closest('button,a,[data-act],[data-g],.g')){var was=vwEl.classList.contains('sel');document.querySelectorAll('.vw.sel').forEach(function(x){x.classList.remove('sel')});if(!was)vwEl.classList.add('sel')}
+  else if(!vwEl)document.querySelectorAll('.vw.sel').forEach(function(x){x.classList.remove('sel')});
   var fw=document.querySelector('.fabwrap');if(fw&&!e.target.closest('.fabwrap'))fw.classList.remove('open');
   var b=e.target.closest('[data-act]');if(!b)return;
   var a=b.dataset.act,p;
