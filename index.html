@@ -601,7 +601,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ah';
+var BUILD='2026.10.04-ai';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1488,9 +1488,11 @@ function drawCard(c,p,v,T){
   var dm=function(r){x.beginPath();x.moveTo(W/2,cy-r);x.lineTo(W/2+r,cy);x.lineTo(W/2,cy+r);x.lineTo(W/2-r,cy);x.closePath()};
   x.fillStyle=T[1][0];dm(84);x.fill();
   x.strokeStyle=T[2];x.lineWidth=2.5;dm(76);x.stroke();
-  var ng=x.createLinearGradient(W/2-60,cy-60,W/2+60,cy+60);ng.addColorStop(0,'#24386c');ng.addColorStop(1,'#121c38');
+  var hx=T[1][0].replace('#',''),lum=(parseInt(hx.slice(0,2),16)*.299+parseInt(hx.slice(2,4),16)*.587+parseInt(hx.slice(4,6),16)*.114),light=lum>150;
+  var ng=x.createLinearGradient(W/2-60,cy-60,W/2+60,cy+60);
+  if(light){ng.addColorStop(0,T[3]);ng.addColorStop(1,T[3])}else{ng.addColorStop(0,T[1][0]);ng.addColorStop(1,T[1][1])}
   x.fillStyle=ng;dm(64);x.fill();x.lineWidth=4;x.strokeStyle=T[2];dm(64);x.stroke();
-  var gg=x.createLinearGradient(W/2,cy-40,W/2,cy+40);gg.addColorStop(0,'#f1dc9c');gg.addColorStop(1,'#c9a24f');
+  var gg=x.createLinearGradient(W/2,cy-40,W/2,cy+40);gg.addColorStop(0,'#f5e3a6');gg.addColorStop(1,light?'#d3ad55':T[2]);
   x.fillStyle=gg;x.translate(W/2,cy+1);var k=.21;x.scale(k,-k);x.translate(-170,-217);x.fill(new Path2D(DAL));x.restore();
   x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
   var t=function(sx){return S.tash?sx:plain(sx)};
