@@ -444,6 +444,10 @@ body{padding-block-start:0}
 .menub svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .menub{position:relative}
 .menub.on::after{content:"";position:absolute;top:5px;inset-inline-start:5px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid var(--surface)}
+
+.ticons button{display:grid;place-items:center;padding:10px 4px}
+.ticons svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ticons button.on{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -477,7 +481,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-b';
+var BUILD='2026.10.04-c';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1009,12 +1013,14 @@ function menuSheet(){
   var chev='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
   var it=function(act,icon,t,d,badge,extra){return '<button class="srow" data-act="'+act+'"'+(extra||'')+'><span class="sic">'+ico(icon)+'</span><span class="stx"><b>'+t+'</b>'+(d?'<small>'+d+'</small>':'')+'</span>'+(badge?'<span class="sbadge">'+badge+'</span>':'')+chev+'</button>'};
   var mode=document.documentElement.dataset.theme||'auto';
-  var seg=[['light','نهاري'],['dark','ليلي'],['auto','تلقائي']].map(function(m){return '<button data-act="themeset" data-v="'+m[0]+'" aria-pressed="'+(mode===m[0])+'"'+(mode===m[0]?' class="on"':'')+'>'+m[1]+'</button>'}).join('');
+  var TI={light:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>',dark:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',auto:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>'};
+  var TL={light:'نهاري',dark:'ليلي',auto:'تلقائي'};
+  var seg=['light','dark','auto'].map(function(m){return '<button class="ticon'+(mode===m?' on':'')+'" data-act="themeset" data-v="'+m+'" aria-pressed="'+(mode===m)+'" aria-label="'+TL[m]+'" title="'+TL[m]+'">'+TI[m]+'</button>'}).join('');
   var canInst=!isStandalone()&&(deferredInstall||instPlatform()!=='other');
   return '<div class="shead2"><b>القائمة</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
   it('nav','gear','الإعدادات','الخط والحجم والتشكيل ونمط المخطوطات',0,' data-nav="more"')+
   (canE()?it('add','pen','كتابة قصيدة','إضافة قصيدة جديدة')+(S.social&&S.pending.length?it('pendview','chat','تعليقات بانتظار المراجعة','',num(S.pending.length)):''):'')+
-  '<div class="sblock"><div class="sbl">المظهر</div><div class="seg3">'+seg+'</div></div>'+
+  '<div class="sblock"><div class="seg3 ticons" role="group" aria-label="المظهر">'+seg+'</div></div>'+
   it('sharesite','share','مشاركة الموقع','أرسل رابط ديواني لأصدقائك')+
   (canInst?it(deferredInstall?'install':'instguide','dl','تثبيت التطبيق','أضف ديواني إلى الشاشة الرئيسية'):'')+
   (S.mode==='supa'?it('admin',S.canEdit?'out':'user',S.canEdit?'تسجيل الخروج':'تسجيل الدخول',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'لصاحب الموقع ومن يديرونه'):'');
