@@ -485,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-j';
+var BUILD='2026.10.04-k';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1087,10 +1087,9 @@ function menuSheet(){
   var seg=['light','dark','auto'].map(function(m){return '<button class="ticon'+(mode===m?' on':'')+'" data-act="themeset" data-v="'+m+'" aria-pressed="'+(mode===m)+'" aria-label="'+TL[m]+'" title="'+TL[m]+'">'+TI[m]+'</button>'}).join('');
   var canInst=!isStandalone()&&(deferredInstall||instPlatform()!=='other');
   return '<div class="shead2"><b>القائمة</b><button class="icon-btn sq" data-act="sheetclose" aria-label="إغلاق">✕</button></div>'+
-  it('nav','gear','الإعدادات','الخط والحجم والتشكيل ونمط المخطوطات',0,' data-nav="more"')+
-  (canE()?it('add','pen','كتابة قصيدة','إضافة قصيدة جديدة')+(S.social&&S.pending.length?it('pendview','chat','تعليقات بانتظار المراجعة','',num(S.pending.length)):''):'')+
   '<div class="sblock"><div class="seg3 ticons" role="group" aria-label="المظهر">'+seg+'</div></div>'+
-  it('sharesite','share','مشاركة الموقع','أرسل رابط ديواني لأصدقائك')+
+  it('nav','gear','الإعدادات','الخط والحجم والتشكيل ونمط المخطوطات',0,' data-nav="more"')+
+  (canE()&&S.social&&S.pending.length?it('pendview','chat','تعليقات بانتظار المراجعة','',num(S.pending.length)):'')+
   (canInst?it(deferredInstall?'install':'instguide','dl','تثبيت التطبيق','أضف ديواني إلى الشاشة الرئيسية'):'')+
   (S.mode==='supa'?it('admin',signedIn()?'out':'user',signedIn()?'تسجيل الخروج':'تسجيل الدخول',signedIn()?(S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة'):'لصاحب الموقع ومن يديرونه'):'');
 }
