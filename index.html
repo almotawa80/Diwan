@@ -543,7 +543,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-r';
+var BUILD='2026.10.04-s';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1634,13 +1634,7 @@ document.addEventListener('click',function(e){
   }
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
   else if(a==='shsz'){if((+b.dataset.d)>0){var ns=Math.min(1.6,Math.round((shScale+0.12)*100)/100);if(!cardFits(ns)){toast('أكبر حجم يناسب البطاقة');return}}shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
-  else if(a==='shwa'){
-    var wc=$('#shc'),mob=/android|iphone|ipad|ipod/i.test(navigator.userAgent||'');
-    if(mob&&wc&&window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
-      var wpr=new Promise(function(res){wc.toBlob(res,'image/png')});
-      navigator.clipboard.write([new ClipboardItem({'image/png':wpr})]).then(function(){toast('نُسخت البطاقة. اختر المحادثة ثم الصق الصورة');var wl=location.origin+location.pathname+(shCur?pHash(shCur.p.id):'');setTimeout(function(){location.href='whatsapp://send?text='+encodeURIComponent(wl)},700)},function(){waShare()});
-    }else waShare();
-  }
+  else if(a==='shwa'){waShare()}
   else if(a==='shinfo'){shInfo=!shInfo;b.setAttribute('aria-checked',shInfo);var tg=b.querySelector('.tgl');if(tg)tg.classList.toggle('on',shInfo);try{localStorage.setItem('diwan-shinfo',shInfo?'1':'0')}catch(x){}shRedraw()}
   else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
   else if(a==='shsave'){shBlob(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('تم حفظ الصورة')})}
