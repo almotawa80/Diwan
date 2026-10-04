@@ -485,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-h';
+var BUILD='2026.10.04-i';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -528,11 +528,13 @@ function loadRole(session){
     var role=r&&r.data&&r.data.role;S.canEdit=!!role;S.isOwner=role==='owner';
   },function(){});
 }
+function signedIn(){return !!(S.canEdit||S.email)}
 function roleKey(){return [S.canEdit,S.isOwner,S.email].join('|')}
 function refreshRole(){
   var before=roleKey();
   return sb.auth.getSession().then(function(r){return loadRole(r.data&&r.data.session)}).then(function(){
     if(S.ready&&roleKey()!==before&&S.view!=='edit'&&S.view!=='import'&&S.view!=='tools')render(true);
+    if(roleKey()!==before&&SHK==='menu')refreshSheet();
   });
 }
 function startLocal(){
@@ -1052,7 +1054,7 @@ function menuSheet(){
   '<div class="sblock"><div class="seg3 ticons" role="group" aria-label="المظهر">'+seg+'</div></div>'+
   it('sharesite','share','مشاركة الموقع','أرسل رابط ديواني لأصدقائك')+
   (canInst?it(deferredInstall?'install':'instguide','dl','تثبيت التطبيق','أضف ديواني إلى الشاشة الرئيسية'):'')+
-  (S.mode==='supa'?it('admin',S.canEdit?'out':'user',S.canEdit?'تسجيل الخروج':'تسجيل الدخول',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'لصاحب الموقع ومن يديرونه'):'');
+  (S.mode==='supa'?it('admin',signedIn()?'out':'user',signedIn()?'تسجيل الخروج':'تسجيل الدخول',signedIn()?(S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة'):'لصاحب الموقع ومن يديرونه'):'');
 }
 function sheetHtml(k){
   if(k==='install')return installSheet();
@@ -1094,7 +1096,7 @@ function viewMore(){
     sw('ms','book','نمط المخطوطات','ورق وزخارف تشبه المخطوطات القديمة',S.ms));
   var inst=installRow();
   var explore=inst?card('التطبيق',inst):'';
-  var acct=S.mode==='supa'?card('الحساب',nav('admin',S.canEdit?'out':'user',S.canEdit?'تسجيل الخروج':'تسجيل الدخول',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'لصاحب الموقع ومن يديرونه')):'';
+  var acct=S.mode==='supa'?card('الحساب',nav('admin',signedIn()?'out':'user',signedIn()?'تسجيل الخروج':'تسجيل الدخول',signedIn()?(S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة'):'لصاحب الموقع ومن يديرونه')):'';
   var adm='';
   if(canE()){
     adm=card('إدارة الديوان',
@@ -1464,7 +1466,7 @@ document.addEventListener('click',function(e){
     r.dataset.theme=dark?'light':'dark';try{localStorage.setItem(THEME,r.dataset.theme)}catch(x){}
     document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});if(S.view==='more')render(true);toast(dark?'الوضع النهاري':'الوضع الليلي')
   }
-  else if(a==='admin'){if(S.mode!=='supa')return;if(S.canEdit)logout();else{S.view='login';render()}}
+  else if(a==='admin'){if(S.mode!=='supa')return;if(signedIn())logout();else{S.view='login';render()}}
   else if(a==='logout'){logout()}
   else if(a==='tools'){if(!isO())return;S.view='tools';render()}
   else if(a==='fab'){document.querySelector('.fabwrap').classList.toggle('open')}
