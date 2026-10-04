@@ -485,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-i';
+var BUILD='2026.10.04-j';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -786,6 +786,44 @@ function pickVotd(force){
 function votdHtml(){
   var r=pickVotd(false);if(!r||S.tab!=='home')return '';
   return '<div class="votd" id="votd"'+((S.q||S.bahr||S.tag)?' hidden':'')+'><small>✦ بيت اليوم ✦</small><div class="v"><span class="s">'+esc(plain(r.v[0]))+'</span><span class="j">'+esc(plain(r.v[1]))+'</span></div><div class="votd-foot"><button class="linkbtn" data-act="open" data-id="'+r.p.id+'">'+esc(r.p.title)+'</button><span>·</span><button class="linkbtn" data-act="votd">بيت آخر</button><span>·</span><button class="linkbtn" data-act="shv" data-vot="1">مشاركة كصورة</button></div></div>';
+}
+function viewAccount(){
+  var head=mast()+'<button class="back" data-act="nav" data-nav="more">→ الإعدادات</button><h2 class="h">بيانات الدخول</h2>';
+  if(S.mode!=='supa'||!signedIn())return head+'<div class="box"><p>سجّل الدخول أولًا.</p></div>';
+  return head+'<form class="box" id="pf" method="post" action="about:blank" target="lf-frame" autocomplete="on"><h3 class="sct">تغيير كلمة المرور</h3>'+
+  '<input type="email" name="username" autocomplete="username" value="'+esc(S.email)+'" hidden>'+
+  '<label class="f">كلمة المرور الحالية<input type="password" id="a-cur" autocomplete="current-password" dir="ltr"></label>'+
+  '<label class="f">كلمة المرور الجديدة (٨ أحرف فأكثر)<input type="password" id="a-new" name="password" autocomplete="new-password" dir="ltr"></label>'+
+  '<label class="f">تأكيد كلمة المرور الجديدة<input type="password" id="a-new2" autocomplete="new-password" dir="ltr"></label>'+
+  '<div><button class="btn primary" id="a-pbtn" type="submit">تغيير كلمة المرور</button></div></form>'+
+  '<form class="box" id="ef" autocomplete="off"><h3 class="sct">تغيير البريد (اسم المستخدم)</h3>'+
+  '<p class="hint">البريد الحالي: <bdi dir="ltr">'+esc(S.email)+'</bdi>. سيصلك رابط تأكيد على البريد الجديد، ويبقى القديم ساريًا حتى تؤكد.</p>'+
+  '<label class="f">كلمة المرور الحالية<input type="password" id="b-cur" autocomplete="off" dir="ltr"></label>'+
+  '<label class="f">البريد الجديد<input type="email" id="b-new" autocomplete="off" autocapitalize="none" dir="ltr" inputmode="email"></label>'+
+  '<div><button class="btn primary" id="a-ebtn" type="submit">تغيير البريد</button></div></form>';
+}
+function reauth(pw){return sb.auth.signInWithPassword({email:S.email,password:pw}).then(function(r){if(r.error)throw new Error('badpw')})}
+function doChangePw(){
+  var cur=($('#a-cur')||{}).value||'',n1=($('#a-new')||{}).value||'',n2=($('#a-new2')||{}).value||'';
+  if(!cur||!n1){toast('أكمل الحقول');return}
+  if(n1.length<8){toast('كلمة المرور الجديدة قصيرة');return}
+  if(n1!==n2){toast('التأكيد لا يطابق كلمة المرور الجديدة');return}
+  var b=$('#a-pbtn');if(b)b.disabled=true;
+  reauth(cur).then(function(){return sb.auth.updateUser({password:n1})}).then(function(r){
+    if(r.error)throw r.error;
+    toast('تم تغيير كلمة المرور');S.view='more';render();
+  }).catch(function(e){if(b)b.disabled=false;toast(e&&e.message==='badpw'?'كلمة المرور الحالية غير صحيحة':'تعذر التغيير، حاول مرة أخرى')});
+}
+function doChangeEmail(){
+  var cur=($('#b-cur')||{}).value||'',em=(($('#b-new')||{}).value||'').trim();
+  if(!cur||!em){toast('أكمل الحقول');return}
+  if(em===S.email){toast('هذا هو بريدك الحالي');return}
+  var b=$('#a-ebtn');if(b)b.disabled=true;
+  reauth(cur).then(function(){return sb.auth.updateUser({email:em})}).then(function(r){
+    if(r.error)throw r.error;
+    try{LS.set('diwan-email',em)}catch(e){}
+    toast('أُرسل رابط التأكيد إلى البريد الجديد');S.view='more';render();
+  }).catch(function(e){if(b)b.disabled=false;toast(e&&e.message==='badpw'?'كلمة المرور الحالية غير صحيحة':'تعذر التغيير، تأكد من البريد وحاول مرة أخرى')});
 }
 function viewLogin(){
   var head=mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تسجيل الدخول</h2>';
@@ -1097,6 +1135,7 @@ function viewMore(){
   var inst=installRow();
   var explore=inst?card('التطبيق',inst):'';
   var acct=S.mode==='supa'?card('الحساب',nav('admin',signedIn()?'out':'user',signedIn()?'تسجيل الخروج':'تسجيل الدخول',signedIn()?(S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة'):'لصاحب الموقع ومن يديرونه')):'';
+  if(S.mode==='supa'&&signedIn())acct=card('الحساب',nav('admin','out','تسجيل الخروج',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة')+nav('account','shield','تغيير كلمة المرور أو البريد','بيانات الدخول الخاصة بك'));
   var adm='';
   if(canE()){
     adm=card('إدارة الديوان',
@@ -1115,7 +1154,7 @@ var SCR={},curKey='',TS={};
 function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':(S.view==='poem'?'poem:'+S.cur:''))}
 function render(keep){
   if(!keep&&curKey)SCR[curKey]=window.scrollY;
-  var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():viewTools();
+  var h=!S.ready?viewLoading():S.view==='list'?viewList():S.view==='poem'?viewPoem():S.view==='read'?viewRead():S.view==='edit'?viewEdit():S.view==='import'?viewImport():S.view==='more'?viewMore():S.view==='fverses'?viewFv():S.view==='poetpage'?viewPoetPage():S.view==='stats'?viewStats():S.view==='book'?viewBook():S.view==='pending'?viewPending():S.view==='login'?viewLogin():S.view==='account'?viewAccount():viewTools();
   hideTip();if(S.view!=='poem'&&SHK&&SHK!=='install'&&SHK!=='menu')closeSheet();var ap=$('#app');ap.innerHTML=h;renderNav();
   if(!keep){var ky=viewKey(),yy=(ky&&SCR[ky])||0;window.scrollTo(0,yy);if(yy){requestAnimationFrame(function(){window.scrollTo(0,yy)});setTimeout(function(){window.scrollTo(0,yy)},120)}ap.classList.remove('vin');void ap.offsetWidth;ap.classList.add('vin')}
   curKey=viewKey();
@@ -1466,6 +1505,7 @@ document.addEventListener('click',function(e){
     r.dataset.theme=dark?'light':'dark';try{localStorage.setItem(THEME,r.dataset.theme)}catch(x){}
     document.querySelectorAll('.sq[data-act="theme"]').forEach(function(el){el.innerHTML=themeIco()});if(S.view==='more')render(true);toast(dark?'الوضع النهاري':'الوضع الليلي')
   }
+  else if(a==='account'){if(signedIn()){S.view='account';render()}}
   else if(a==='admin'){if(S.mode!=='supa')return;if(signedIn())logout();else{S.view='login';render()}}
   else if(a==='logout'){logout()}
   else if(a==='tools'){if(!isO())return;S.view='tools';render()}
@@ -1601,6 +1641,8 @@ document.addEventListener('change',function(e){
 });
 document.addEventListener('submit',function(e){
   if(e.target.id==='lf'){doLogin()}
+  else if(e.target.id==='pf'){doChangePw()}
+  else if(e.target.id==='ef'){e.preventDefault();doChangeEmail()}
   else if(e.target.id==='cf'){
     e.preventDefault();var body=($('#c-body').value||'').trim(),nm=($('#c-name').value||'').trim(),btn=$('#c-btn');
     if(body.length<2){toast('اكتب تعليقًا');return}
