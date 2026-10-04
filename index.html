@@ -485,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-g';
+var BUILD='2026.10.04-h';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -570,6 +570,7 @@ function doLogin(){
   var btn=$('#l-btn');if(btn)btn.disabled=true;
   sb.auth.signInWithPassword({email:email,password:pw}).then(function(r){
     if(r.error){if(btn)btn.disabled=false;toast('بيانات الدخول غير صحيحة');return}
+    try{LS.set('diwan-email',email)}catch(e){}
     return loadRole(r.data&&r.data.session).then(function(){
       S.view='list';render();
       toast(S.canEdit?'مرحبًا بك في وضع المدير':'هذا الحساب لا يملك صلاحية الإدارة');
@@ -788,7 +789,7 @@ function viewLogin(){
   var head=mast()+'<button class="back" data-act="home">→ العودة</button><h2 class="h">تسجيل الدخول</h2>';
   if(S.mode!=='supa')return head+'<div class="box"><p>الموقع غير مرتبط بقاعدة بيانات بعد، لذلك لا يوجد تسجيل دخول. اتبع ملف الإعداد لربطه بـ Supabase.</p></div>';
   if(S.email)return head+'<div class="box"><h3>'+(S.isOwner?'مالك الموقع':S.canEdit?'مدير':'حساب بلا صلاحية إدارة')+'</h3><p dir="ltr" style="text-align:start;margin:0">'+esc(S.email)+'</p>'+(S.canEdit?'':'<p class="hint">هذا الحساب مسجّل لكنه غير مضاف إلى المديرين. اطلب من مالك الموقع إضافته.</p>')+'<div><button class="btn" data-act="logout">تسجيل الخروج</button></div></div>';
-  return head+'<form class="box" id="lf" method="post" action="about:blank" target="lf-frame" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" name="password" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول لصاحب الموقع ومن يديرونه. القراءة متاحة للجميع دون حساب.</p></form>';
+  return head+'<form class="box" id="lf" method="post" action="about:blank" target="lf-frame" autocomplete="on"><label class="f">البريد الإلكتروني<input type="email" id="l-email" value="'+esc(LS.get('diwan-email')||'')+'" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" dir="ltr" inputmode="email"></label><label class="f">كلمة المرور<input type="password" id="l-pass" name="password" autocomplete="current-password" dir="ltr"></label><div><button class="btn primary" id="l-btn" type="submit">دخول</button></div><p class="hint">الدخول لصاحب الموقع ومن يديرونه. القراءة متاحة للجميع دون حساب.</p></form>';
 }
 function viewLoading(){return mast()+'<div class="loading">جارٍ تحميل القصائد…</div>'}
 function barHtml(){
