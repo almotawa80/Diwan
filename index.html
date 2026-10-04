@@ -485,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-k';
+var BUILD='2026.10.04-l';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1125,29 +1125,26 @@ function viewMore(){
   var chips=FONTS.map(function(F,i){return '<button class="fchip'+(i===S.fi?' on':'')+'" data-act="setfont" data-i="'+i+'" aria-pressed="'+(i===S.fi)+'" style="font-family:'+F[1]+'">'+F[0]+'</button>'}).join('');
   var s1='قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ',s2='بِسِقطِ اللِوى بَينَ الدَخولِ فَحَوْمَلِ';
   var prev='<div class="sprev" id="sprev" style="--fs:'+S.fs+'"><div>'+(S.tash?s1:plain(s1))+'</div><div>'+(S.tash?s2:plain(s2))+'</div></div>';
-  var read=card('القراءة والمظهر',
-    '<div class="sblock"><div class="sbl">المظهر</div><div class="seg3">'+seg+'</div></div>'+
+  var read=card('القراءة',
     '<div class="sblock"><div class="sbl">خط الأبيات</div><div class="fchips">'+chips+'</div>'+prev+'</div>'+
     '<div class="sblock"><div class="sbl">حجم الأبيات <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="160" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div></div>'+
     sw('tash','type','التشكيل','إظهار الحركات على الأبيات',S.tash)+
     sw('ms','book','نمط المخطوطات','ورق وزخارف تشبه المخطوطات القديمة',S.ms));
-  var inst=installRow();
-  var explore=inst?card('التطبيق',inst):'';
-  var acct=S.mode==='supa'?card('الحساب',nav('admin',signedIn()?'out':'user',signedIn()?'تسجيل الخروج':'تسجيل الدخول',signedIn()?(S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة'):'لصاحب الموقع ومن يديرونه')):'';
-  if(S.mode==='supa'&&signedIn())acct=card('الحساب',nav('admin','out','تسجيل الخروج',S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة')+nav('account','shield','تغيير كلمة المرور أو البريد','بيانات الدخول الخاصة بك'));
+  var who=S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة';
+  var accRow=(S.mode==='supa'&&signedIn())?nav('account','shield','تغيير كلمة المرور أو البريد',who):'';
   var adm='';
   if(canE()){
-    adm=card('إدارة الديوان',
+    adm=card('الإدارة',
       '<div class="ssub">المحتوى</div>'+
-      nav('add','pen','كتابة قصيدة','إضافة قصيدة جديدة')+
       '<label class="srow file">'+sic('up')+'<span class="stx"><b>رفع ملف Word</b><small>استيراد قصائد من ملف .docx</small></span>'+chev+'<input type="file" accept=".docx" data-file="1" id="f-more"></label>'+
       (S.social?nav('pendview','chat','تعليقات بانتظار المراجعة','اعتماد التعليقات أو حذفها',S.pending.length?num(S.pending.length):''):'')+
       '<div class="ssub">البيانات</div>'+
       nav('stats','chart','إحصاءات الديوان','أعداد القصائد والأبيات والبحور')+
       nav('bookview','file','تصدير الديوان','طباعة · PDF · Word')+
-      (isO()?nav('tools','shield','النسخ الاحتياطي والاستعادة','إعدادات الموقع وتنزيل النسخ ودمجها'):''));
-  }
-  return mast()+'<h2 class="h">الإعدادات</h2>'+read+explore+acct+adm+'<p class="hint buildid">الإصدار <bdi dir="ltr">'+BUILD+'</bdi></p>';
+      (isO()?nav('tools','shield','النسخ الاحتياطي والاستعادة','تنزيل النسخ ودمجها'):'')+
+      (accRow?'<div class="ssub">الحساب</div>'+accRow:''));
+  }else if(accRow)adm=card('الحساب',accRow);
+  return mast()+'<h2 class="h">الإعدادات</h2>'+read+adm+'<p class="hint buildid">الإصدار <bdi dir="ltr">'+BUILD+'</bdi></p>';
 }
 var SCR={},curKey='',TS={};
 function viewKey(){return S.view==='list'?'list:'+S.tab+'|'+S.poet+'|'+S.tag+'|'+S.q+'|'+S.bahr:(S.view==='more'?'more':(S.view==='poem'?'poem:'+S.cur:''))}
