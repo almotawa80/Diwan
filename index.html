@@ -602,7 +602,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-am';
+var BUILD='2026.10.04-an';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1305,7 +1305,7 @@ function justifyV(root){
     if(multi||right<=left)continue;
     var nw=right-left,extra=cw-nw;
     if(extra<=1)continue;
-    var ws=Math.min((extra-3)/gaps,fz*.7),tries=0;if(ws<=0)continue;
+    var ws=Math.min((extra-6)/gaps,fz*.5),tries=0;if(ws<=0)continue;
     var oneLine=function(){var c=rg.getClientRects(),t0=c[0].top;for(var q=0;q<c.length;q++){if(Math.abs(c[q].top-t0)>fz*.6)return false}return true};
     el.style.wordSpacing=ws.toFixed(2)+'px';
     while(!oneLine()&&tries<8){ws*=.85;tries++;el.style.wordSpacing=ws.toFixed(2)+'px'}
@@ -1314,6 +1314,8 @@ function justifyV(root){
 }
 window.addEventListener('resize',function(){clearTimeout(window.__fitT);window.__fitT=setTimeout(function(){if(S.view==='poem'){FITC={k:'',v:1.6};applyFit()}},150)});
 try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){FITC={k:'',v:1.6};applyFit()})}catch(e){}
+/* الخط قد يصل بعد أول رسم (خاصة على الآيفون): نعيد الحساب كلما اكتمل تحميل خط */
+try{if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',function(){clearTimeout(window.__fdT);window.__fdT=setTimeout(function(){if(S.view==='poem'){FITC={k:'',v:1.6};applyFit()}},60)})}catch(e){}
 function fitCap(){
   var root=$('.verses');if(!root||S.view!=='poem')return 1.6;
   var key=[S.cur,S.fi,S.tash,window.innerWidth].join('|');
