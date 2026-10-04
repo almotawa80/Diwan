@@ -503,7 +503,7 @@ h3.sct .dnote{margin-inline-start:6px}
 .shstep{display:inline-flex;gap:6px}
 .shstep button{min-width:48px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem var(--f-ui);cursor:pointer}
 .shstep button:active{background:var(--tint)}
-.shacts{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:10px}
+.shacts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .shacts .btn{height:50px;padding:0;display:grid;place-items:center;border-radius:14px;flex:none}
 .btn.wa{background:#1fa855;border-color:#1fa855;color:#fff}.btn.wa:hover{background:#1b9a4d}
 .btn.ic{background:var(--surface);border-color:var(--line);color:var(--accent)}
@@ -543,7 +543,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-s';
+var BUILD='2026.10.04-t';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -1127,7 +1127,7 @@ function cardFits(sc){
   var size=Math.round(64*sc);cx.font=size+'px "'+fam+'", serif';
   for(var i=0;i<parts.length;i++)if(cx.measureText(parts[i]).width>W-240)return false;
   var lh=Math.round(size*1.8),gap=parts.length>1?150:0;
-  return parts.length*lh+gap<=(shInfo?H-390:H-220)-235;
+  return parts.length*lh+gap<=((shTitle||shPoet)?H-390:H-220)-235;
 }
 function instPlatform(){
   var ua=navigator.userAgent||'';
@@ -1258,8 +1258,8 @@ var SH_THEMES=[
 ];
 var shSel=0,shCur=null;
 try{var shs=parseInt(localStorage.getItem('diwan-shth'));if(shs>=0&&shs<SH_THEMES.length)shSel=shs}catch(e){}
-var shScale=1,shInfo=true;
-try{if(localStorage.getItem('diwan-shinfo')==='0')shInfo=false}catch(e){}
+var shScale=1,shTitle=true,shPoet=true;
+try{var _o=localStorage.getItem('diwan-shinfo'),_t=localStorage.getItem('diwan-shti'),_p=localStorage.getItem('diwan-shpo');if(_t===null&&_o==='0')_t='0';if(_p===null&&_o==='0')_p='0';if(_t==='0')shTitle=false;if(_p==='0')shPoet=false}catch(e){}
 try{var shz=parseFloat(localStorage.getItem('diwan-shsz'));if(shz>=0.6&&shz<=1.6)shScale=shz}catch(e){}
 function drawCard(c,p,v,T){
   var fam=FONTS[S.fi][1].split(',')[0].replace(/'/g,'');
@@ -1281,7 +1281,7 @@ function drawCard(c,p,v,T){
   x.direction='rtl';x.textAlign='center';x.textBaseline='middle';
   var t=function(sx){return S.tash?sx:plain(sx)};
   var parts=[t(v[0])];if(v[1])parts.push(t(v[1]));
-  var top=235,bot=shInfo?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
+  var top=235,bot=(shTitle||shPoet)?H-390:H-220,avail=bot-top,gap=parts.length>1?150:0,size=Math.round(64*shScale),lines,lh,total,MX=120,WW=W-2*MX;
   var layout=function(){x.font=size+'px "'+fam+'", serif';lines=[];parts.forEach(function(sx,i){wrapLine(x,sx,WW).forEach(function(l){lines.push([l,i])})});lh=Math.round(size*1.8);total=lines.length*lh+gap};
   var wide=function(){return parts.some(function(sx){return x.measureText(sx).width>WW})};
   layout();while((total>avail||wide())&&size>28){size-=2;layout()}
@@ -1294,11 +1294,12 @@ function drawCard(c,p,v,T){
     y+=lh});
   x.textAlign='center';
   /* footer: ornament, title, poet, site */
-  if(shInfo){orn(H-350,150);
-  var ts=64;x.font=ts+'px "Aref Ruqaa", serif';while(x.measureText(p.title).width>W-200&&ts>34){ts-=3;x.font=ts+'px "Aref Ruqaa", serif'}
-  x.fillStyle=T[2];x.fillText(p.title,W/2,H-278);
-  var po=poetLabel(p);
-  if(po){x.fillStyle=T[4];var ps=44;x.font=ps+'px "Amiri", serif';var lab='— '+po+' —';while(x.measureText(lab).width>W-200&&ps>28){ps-=2;x.font=ps+'px "Amiri", serif'}x.fillText(lab,W/2,H-205)}
+  var po=poetLabel(p),showPo=shPoet&&!!po;
+  if(shTitle||showPo){orn(H-350,150);
+  var both=shTitle&&showPo;
+  if(shTitle){var ts=64;x.font=ts+'px "Aref Ruqaa", serif';while(x.measureText(p.title).width>W-200&&ts>34){ts-=3;x.font=ts+'px "Aref Ruqaa", serif'}
+    x.fillStyle=T[2];x.fillText(p.title,W/2,both?H-278:H-250)}
+  if(showPo){x.fillStyle=T[4];var ps=both?44:52;x.font=ps+'px "Amiri", serif';var lab='— '+po+' —';while(x.measureText(lab).width>W-200&&ps>28){ps-=2;x.font=ps+'px "Amiri", serif'}x.fillText(lab,W/2,both?H-205:H-250)}
   x.fillStyle=T[5];x.font='28px "IBM Plex Sans Arabic", sans-serif';x.fillText(S.data.settings.site||'ديواني',W/2,H-122)}
 }
 function shRedraw(){var c=$('#shc');if(c&&shCur)drawCard(c,shCur.p,shCur.v,SH_THEMES[shSel]);
@@ -1325,7 +1326,9 @@ function shareVerse(p,v){
     '<div class="shprev"><canvas id="shc" aria-label="معاينة البطاقة"></canvas></div>'+
     '<div class="sws" role="group" aria-label="الخلفية">'+SH_THEMES.map(function(T,i){return '<button class="sw" data-act="shtheme" data-i="'+i+'" title="'+T[0]+'" aria-label="خلفية '+T[0]+'" style="background:linear-gradient(135deg,'+T[1][0]+','+T[1][1]+')"></button>'}).join('')+'</div>'+
     '<div class="shopts"><div class="shrow"><span>حجم الخط</span><span class="shstep"><button data-act="shsz" data-d="-1" aria-label="تصغير الخط">أ−</button><button data-act="shsz" data-d="1" aria-label="تكبير الخط">أ+</button></span></div>'+
-    '<button class="shrow shtog" role="switch" aria-checked="'+shInfo+'" data-act="shinfo"><span>اسم القصيدة والشاعر</span><span class="tgl'+(shInfo?' on':'')+'"><i></i></span></button></div>'+
+    '<button class="shrow shtog" role="switch" aria-checked="'+shTitle+'" data-act="shtitle"><span>اسم القصيدة</span><span class="tgl'+(shTitle?' on':'')+'"><i></i></span></button>'+
+    '<button class="shrow shtog" role="switch" aria-checked="'+shPoet+'" data-act="shpoet"><span>اسم الشاعر</span><span class="tgl'+(shPoet?' on':'')+'"><i></i></span></button>'+
+    '</div>'+
     '<div class="shacts"><button class="btn wa" data-act="shwa" title="واتساب" aria-label="مشاركة البطاقة على واتساب"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4A8 8 0 1 1 8.2 19z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7a3.5 3.5 0 0 1-1.6-1.6l.7-.8-1-1.8z" fill="currentColor" stroke="none"/></svg></button><button class="btn ic" data-act="shsave" title="حفظ كصورة" aria-label="حفظ كصورة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5"/><path d="M5 19h14"/></svg></button><button class="btn ic" data-act="shdo" title="مشاركة" aria-label="مشاركة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.8"/><circle cx="6" cy="12" r="2.8"/><circle cx="18" cy="19" r="2.8"/><path d="M8.5 13.4l7 4.2M15.5 6.4l-7 4.2"/></svg></button></div></div>';
     document.body.appendChild(o);shRedraw();
   });
@@ -1635,7 +1638,7 @@ document.addEventListener('click',function(e){
   else if(a==='shclose'){var ov=$('#shov');if(ov)ov.remove()}
   else if(a==='shsz'){if((+b.dataset.d)>0){var ns=Math.min(1.6,Math.round((shScale+0.12)*100)/100);if(!cardFits(ns)){toast('أكبر حجم يناسب البطاقة');return}}shScale=Math.min(1.6,Math.max(0.6,Math.round((shScale+(+b.dataset.d)*0.12)*100)/100));try{localStorage.setItem('diwan-shsz',shScale)}catch(x){}shRedraw()}
   else if(a==='shwa'){waShare()}
-  else if(a==='shinfo'){shInfo=!shInfo;b.setAttribute('aria-checked',shInfo);var tg=b.querySelector('.tgl');if(tg)tg.classList.toggle('on',shInfo);try{localStorage.setItem('diwan-shinfo',shInfo?'1':'0')}catch(x){}shRedraw()}
+  else if(a==='shtitle'||a==='shpoet'){var isT=a==='shtitle';if(isT)shTitle=!shTitle;else shPoet=!shPoet;var on=isT?shTitle:shPoet;b.setAttribute('aria-checked',on);var tg=b.querySelector('.tgl');if(tg)tg.classList.toggle('on',on);try{localStorage.setItem(isT?'diwan-shti':'diwan-shpo',on?'1':'0')}catch(x){}shRedraw()}
   else if(a==='shtheme'){shSel=+b.dataset.i;try{localStorage.setItem('diwan-shth',shSel)}catch(x){}shRedraw()}
   else if(a==='shsave'){shBlob(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='bait.png';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('تم حفظ الصورة')})}
   else if(a==='shdo'){shBlob(function(bl){
