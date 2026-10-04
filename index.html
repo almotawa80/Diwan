@@ -602,7 +602,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ak';
+var BUILD='2026.10.04-am';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -610,7 +610,7 @@ var FONTS=[['أميري',"'Amiri','Traditional Arabic',serif",1,2.1],['نسخ',"
 try{var fi0=parseInt(localStorage.getItem('diwan-font'));if(fi0>=0&&fi0<FONTS.length)S.fi=fi0}catch(e){}
 function applyFont(){var r=document.documentElement.style,F=FONTS[S.fi];r.setProperty('--f-verse',F[1]);r.setProperty('--fz',F[2]);r.setProperty('--flh',F[3])}applyFont();
 function isDark(){var r=document.documentElement;return r.dataset.theme?r.dataset.theme==='dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
-try{var fsv=parseFloat(localStorage.getItem('diwan-fs'));if(fsv>=0.8&&fsv<=1.6)S.fs=fsv;if(localStorage.getItem('diwan-tash')==='0')S.tash=false}catch(e){}
+try{var fsv=parseFloat(localStorage.getItem('diwan-fs'));if(fsv>=0.8&&fsv<=1.6)S.fs=fsv;if(localStorage.getItem('diwan-tash')==='0')S.tash=false;S.just=localStorage.getItem('diwan-just')!=='0'}catch(e){S.just=true}
 try{var th=localStorage.getItem(THEME);if(th)document.documentElement.dataset.theme=th}catch(e){}
 
 function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('on')},2600)}
@@ -1289,6 +1289,28 @@ function applyFit(){
   var root=$('.verses');if(!root)return;
   var c=fitCap(),eff=Math.min(S.fs,c);
   root.style.setProperty('--fs',eff);
+  justifyV(root);
+}
+/* محاذاة الأشطر: نوسّع المسافات بين الكلمات قليلًا ليملأ كل شطر عرض عموده فتتساوى الأشطر في الطول */
+function justifyV(root){
+  var els=root.querySelectorAll('.v:not(.one) .s,.v:not(.one) .j');
+  for(var i=0;i<els.length;i++){els[i].style.wordSpacing='';els[i].style.textAlignLast=''}
+  if(S.just===false)return;
+  for(var k=0;k<els.length;k++){
+    var el=els[k],txt=el.textContent,gaps=(txt.match(/ /g)||[]).length;if(!gaps)continue;
+    var cs=getComputedStyle(el),fz=parseFloat(cs.fontSize)||18,lh=parseFloat(cs.lineHeight)||fz*1.8,cw=el.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);
+    var rg=document.createRange();rg.selectNodeContents(el);var rc=rg.getClientRects();
+    var top=null,multi=false,right=-1e9,left=1e9;
+    for(var j=0;j<rc.length;j++){var r=rc[j];if(top===null)top=r.top;if(Math.abs(r.top-top)>fz*.6)multi=true;if(r.right>right)right=r.right;if(r.left<left)left=r.left}
+    if(multi||right<=left)continue;
+    var nw=right-left,extra=cw-nw;
+    if(extra<=1)continue;
+    var ws=Math.min((extra-3)/gaps,fz*.7),tries=0;if(ws<=0)continue;
+    var oneLine=function(){var c=rg.getClientRects(),t0=c[0].top;for(var q=0;q<c.length;q++){if(Math.abs(c[q].top-t0)>fz*.6)return false}return true};
+    el.style.wordSpacing=ws.toFixed(2)+'px';
+    while(!oneLine()&&tries<8){ws*=.85;tries++;el.style.wordSpacing=ws.toFixed(2)+'px'}
+    if(!oneLine())el.style.wordSpacing='';
+  }
 }
 window.addEventListener('resize',function(){clearTimeout(window.__fitT);window.__fitT=setTimeout(function(){if(S.view==='poem'){FITC={k:'',v:1.6};applyFit()}},150)});
 try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){FITC={k:'',v:1.6};applyFit()})}catch(e){}
@@ -1417,6 +1439,7 @@ function viewMore(){
     '<div class="sblock"><div class="sbl">خط الأبيات</div><div class="fchips">'+chips+'</div>'+prev+'</div>'+
     '<div class="sblock"><div class="sbl">حجم الأبيات <b id="fsv">'+num(Math.round(S.fs*100))+'٪</b></div><div class="rng"><span class="rs">أ</span><input type="range" min="80" max="160" step="10" value="'+Math.round(S.fs*100)+'" data-fsr="1" aria-label="حجم الأبيات"><span class="rl">أ</span></div></div>'+
     sw('tash','type','التشكيل','إظهار الحركات على الأبيات',S.tash)+
+    sw('just','type','محاذاة الأشطر','توحيد طول الأشطر لتظهر القصيدة منتظمة',S.just!==false)+
     sw('ms','book','نمط المخطوطات','ورق وزخارف تشبه المخطوطات القديمة',S.ms));
   var who=S.canEdit?('مسجّل كـ'+(S.isOwner?'صاحب الموقع':'مدير')):'حساب بلا صلاحية إدارة';
   var accRow=(S.mode==='supa'&&signedIn())?nav('account','shield','تغيير كلمة المرور أو البريد',who):'';
@@ -1908,6 +1931,7 @@ document.addEventListener('click',function(e){
   }
   else if(a==='votd'){pickVotd(true);render(true)}
   else if(a==='fsup'||a==='fsdown'){if(a==='fsup'&&S.view==='read'){var nx=Math.round((S.fs+0.1)*10)/10;if(nx>Math.max(readerCap(),S.fs)+0.001){toast('أكبر حجم لا ينزل معه شطر إلى سطر ثانٍ');return}}S.fs=Math.min(1.6,Math.max(0.8,Math.round((S.fs+(a==='fsup'?0.1:-0.1))*10)/10));try{localStorage.setItem('diwan-fs',S.fs)}catch(x){}var vs=$('.verses')||$('#reader');if(vs)vs.style.setProperty('--fs',S.fs);if(S.view==='more')render(true)}
+  else if(a==='just'){S.just=S.just===false;try{localStorage.setItem('diwan-just',S.just?'1':'0')}catch(x){}render(true)}
   else if(a==='tash'){S.tash=!S.tash;try{localStorage.setItem('diwan-tash',S.tash?'1':'0')}catch(x){}render(true)}
   else if(a==='readopen'){S.ri=0;S.dir='';S.view='read';render()}
   else if(a==='rclose'){S.view='poem';render(true)}
