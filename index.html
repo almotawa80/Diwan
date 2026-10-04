@@ -597,7 +597,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data));storageOk=t
 function peekLocal(){var d=load();if(!d)return null;var l=d.poems.filter(function(p){return !p.sample&&p.id!=='sample1'});return l.length?{poems:l,settings:d.settings}:null}
 
 var S={data:freshData(),mode:'',ready:false,canEdit:false,isOwner:false,err:'',tab:'home',q:'',bahr:'',tag:'',poet:'',sort:'new',view:'list',cur:null,edit:null,imp:[],confirm:false,msg:'',fs:1,votd:null,tash:true,ri:0};
-var BUILD='2026.10.04-ab';
+var BUILD='2026.10.04-ac';
 var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 S.focus=null;S.settingsExt=false;S.photoExt=false;S.social=null;S.likes={};S.mylikes={};S.cmts=[];S.pending=[];S.newIds=[];S.onlyNew=false;S.ms=!!LS.get('diwan-ms',false);
 if(S.ms)document.documentElement.dataset.ms='1';
@@ -991,13 +991,28 @@ function baytHtml(){
     return '<div class="fvi">'+vs+'<div class="fvf">'+(who?'<span>'+who+'</span><span>·</span>':'')+'<button class="linkbtn" data-act="baytshare" data-id="'+p.id+'">مشاركة كصورة</button>'+(canE()?'<span>·</span><button class="linkbtn" data-act="baytedit" data-id="'+p.id+'">تعديل</button>':'')+(isO()?'<span>·</span><button class="linkbtn" data-act="baytdel" data-id="'+p.id+'">حذف</button>':'')+'</div></div>';
   }).join('')+'</div>';
 }
+function mineHtml(){
+  var l=fvList();
+  if(!l.length)return '<div class="empty">لم تحفظ أبياتًا بعد. اضغط القلب في «شوارد» لتجمع الأبيات التي تعجبك هنا، وهي محفوظة على جهازك.</div>';
+  return '<div class="fvlist">'+l.map(function(x,i){
+    var v=x.t||['',''],t=function(s){return esc(S.tash?s:plain(s))};
+    var who=[x.title,x.poet].filter(Boolean).map(esc).join(' · ');
+    var po=findP(x.p);
+    return '<div class="fvi"><div class="v'+(v[1]?'':' one')+'"><span class="s">'+t(v[0])+'</span>'+(v[1]?'<span class="j">'+t(v[1])+'</span>':'')+'</div><div class="fvf">'+(who?'<span>'+who+'</span><span>·</span>':'')+(po&&po.kind!=='bayt'?'<button class="linkbtn" data-act="mineopen" data-i="'+i+'">فتح القصيدة</button><span>·</span>':'')+'<button class="linkbtn" data-act="mineshare" data-i="'+i+'">مشاركة كصورة</button><span>·</span><button class="linkbtn" data-act="minerm" data-i="'+i+'">إزالة</button></div></div>';
+  }).join('')+'</div>';
+}
 function favTabHtml(){
   ensureArrs();
-  var nP=S.data.poems.filter(function(p){return p.section==='fav'}).length,nB=S.data.bayt.length;
-  if(!nP&&!nB&&!canE())return '<h2 class="h">المفضلة</h2><div class="empty">لا توجد مفضلات بعد.</div>';
-  var both=(nP&&nB)||canE(),seg=both?S.favseg:(nB&&!nP?'verses':'poems');
-  var ctl=both?'<div class="seg3 two">'+[['poems','قصائد'+(nP?' · '+num(nP):'')],['verses','أبيات'+(nB?' · '+num(nB):'')]].map(function(s){return '<button data-act="favseg" data-v="'+s[0]+'" aria-pressed="'+(seg===s[0])+'"'+(seg===s[0]?' class="on"':'')+'>'+s[1]+'</button>'}).join('')+'</div>':'<h2 class="h">المفضلة</h2>';
+  var nP=S.data.poems.filter(function(p){return p.section==='fav'}).length,nB=S.data.bayt.length,nM=canE()?0:fvList().length;
+  if(!nP&&!nB&&!nM&&!canE())return '<h2 class="h">المفضلة</h2><div class="empty">لا توجد مفضلات بعد.<br><small>اضغط القلب في «شوارد» لتحفظ ما يعجبك.</small></div>';
+  var segs=[];
+  if(nP||canE()||(!nB&&!nM))segs.push(['poems','قصائد'+(nP?' · '+num(nP):'')]);
+  if(nB||canE())segs.push(['verses','أبيات'+(nB?' · '+num(nB):'')]);
+  if(nM)segs.push(['mine','أبياتي · '+num(nM)]);
+  var valid=segs.some(function(s){return s[0]===S.favseg}),seg=valid?S.favseg:segs[0][0];
+  var ctl=segs.length>1?'<div class="seg3'+(segs.length===2?' two':'')+'">'+segs.map(function(s){return '<button data-act="favseg" data-v="'+s[0]+'" aria-pressed="'+(seg===s[0])+'"'+(seg===s[0]?' class="on"':'')+'>'+s[1]+'</button>'}).join('')+'</div>':'<h2 class="h">المفضلة</h2>';
   if(seg==='verses')return ctl+baytHtml();
+  if(seg==='mine')return ctl+mineHtml();
   var m={};S.data.poems.filter(function(p){return p.section==='fav'}).forEach(function(p){m[poetLabel(p)||'شاعر غير مذكور']=1});
   var names=Object.keys(m).sort(function(a,b){return a.localeCompare(b,'ar')});
   var prow=names.length>1?'<div class="tagrow" role="group" aria-label="الشعراء"><button class="tg" aria-pressed="'+(!S.poet)+'" data-act="clearpoet">كل الشعراء</button>'+names.map(function(n){return '<button class="tg" aria-pressed="'+(S.poet===n)+'" data-act="poet" data-poet="'+esc(n)+'">'+esc(n)+'</button>'}).join('')+'</div>':'';
@@ -1134,8 +1149,7 @@ function flFavFind(e){ensureArrs();var p=e[0],k=flFavKey(e[1]);
   if(p.kind==='bayt')return p;
   return S.data.bayt.find(function(b){return b.verses.some(function(x){return flFavKey(x)===k})})||null}
 function flHeartBtn(e){
-  if(!canE())return '';
-  var on=!!flFavFind(e);
+  var on=canE()?!!flFavFind(e):fvHas(e[0].id,e[1]);
   return '<button class="flheart'+(on?' on':'')+'" data-act="flheart" aria-pressed="'+on+'" aria-label="'+(on?'في المفضلة':'إضافة إلى المفضلة')+'" title="'+(on?'في المفضلة':'إضافة إلى المفضلة')+'">'+ico('heart')+'</button>';
 }
 function flCard(e,pos){
@@ -1530,8 +1544,8 @@ function fvKey(v){return plain(v[0]).replace(/\s+/g,' ').trim().slice(0,50)}
 function fvHas(pid,v){var k=fvKey(v);return fvList().some(function(x){return x.p===pid&&x.k===k})}
 function fvToggle(p,v){
   var l=fvList(),k=fvKey(v),i=l.findIndex(function(x){return x.p===p.id&&x.k===k});
-  if(i>-1){l.splice(i,1);toast('أُزيل من أبياتك المفضلة')}
-  else{l.unshift({p:p.id,k:k,t:v,title:p.title,poet:poetLabel(p)});toast('أُضيف إلى أبياتك المفضلة')}
+  if(i>-1){l.splice(i,1);toast('أُزيل من أبياتي')}
+  else{l.unshift({p:p.id,k:k,t:v,title:p.kind==='bayt'?(p.source||''):p.title,poet:poetLabel(p)||'',bayt:p.kind==='bayt'?1:0});toast('أُضيف إلى «أبياتي» في المفضلة')}
   LS.set('diwan-fv',l);
 }
 function viewFv(){return mast()+baytHtml()}
@@ -1794,8 +1808,13 @@ document.addEventListener('click',function(e){
   else if(a==='flclose'){closeFlash()}
   else if(a==='flnext'){flSwipe(-1)}
   else if(a==='flback'){flBack()}
+  else if(a==='mineopen'){var mi=fvList()[+b.dataset.i];var mp=mi&&findP(mi.p);if(mp){S.cur=mp.id;S.view='poem';render()}}
+  else if(a==='mineshare'){var ms=fvList()[+b.dataset.i];if(ms)shareVerse({id:ms.p,title:ms.title||'',poet:ms.poet||'',kind:'poem',verses:[ms.t]},ms.t)}
+  else if(a==='minerm'){var ml=fvList();var mr=ml.splice(+b.dataset.i,1)[0];if(mr){LS.set('diwan-fv',ml);toast('أُزيل من أبياتي');render(true)}}
   else if(a==='flheart'){
-    var fe=S.flash;if(!fe||!canE())return;var ex=flFavFind(fe);
+    var fe=S.flash;if(!fe)return;
+    if(!canE()){var was=fvHas(fe[0].id,fe[1]);fvToggle(fe[0],fe[1]);var now=!was;b.classList.toggle('on',now);b.setAttribute('aria-pressed',now);b.title=now?'في أبياتي':'إضافة إلى أبياتي';return}
+    var ex=flFavFind(fe);
     if(ex){
       if(fe[0].kind==='bayt'||!isO()){toast(isO()?'هذا البيت في المفضلة. يُحذف من تبويب المفضلة':'البيت في المفضلة بالفعل');return}
       S.data.bayt=S.data.bayt.filter(function(x){return x.id!==ex.id});removePoem(ex.id).then(function(){toast('أُزيل من المفضلة')},fail);
